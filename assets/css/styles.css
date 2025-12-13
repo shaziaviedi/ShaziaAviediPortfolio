@@ -1,0 +1,850 @@
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #020308;
+  color: #f6f6f6;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  backdrop-filter: blur(16px);
+  background: linear-gradient(to bottom, rgba(2,3,8,0.9), rgba(2,3,8,0));
+}
+
+.header-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.site-title {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #f6f6f6;
+}
+
+.site-title:hover {
+  color: #ffffff;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.site-nav a {
+  text-decoration: none;
+  color: rgba(246,246,246,0.7);
+  position: relative;
+}
+
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.25rem;
+  width: 0;
+  height: 1px;
+  background: #4aa8ff;
+  transition: width 0.2s ease;
+}
+
+.site-nav a:hover {
+  color: #ffffff;
+}
+
+.site-nav a:hover::after {
+  width: 100%;
+}
+
+/* ============================================================
+   COLOR TOKENS & HEADING GRADIENTS
+   ============================================================ */
+
+:root {
+  --purple-main: #b58cff;
+  --purple-soft: #e0d4ff;
+  --blue-accent: #4aa8ff;
+  --silver: #cfd3df;
+}
+
+.heading-animated,
+.heading-animated-small {
+  background: linear-gradient(120deg, var(--purple-main), var(--silver), var(--blue-accent));
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: heroGradient 8s ease-in-out infinite;
+}
+
+.heading-animated-small {
+  font-size: inherit;
+}
+
+@keyframes heroGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Three.js canvas behind everything */
+#hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  transition: filter 0.55s ease;
+}
+
+/* blurred state added by JS once you scroll past Portfolio heading */
+body.hero-blur #hero-canvas {
+  filter: blur(16px) saturate(1.05);
+}
+
+/* Text overlay */
+.hero-overlay {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  /* put hero text back toward lower half of the screen */
+  align-items: flex-end;
+}
+
+.hero-text {
+  max-width: 1120px;
+  margin: 0 auto;
+  /* more bottom padding = content sits a bit higher while still in lower half */
+  padding: 7rem 1.5rem 7.5rem;
+}
+
+
+.hero-kicker {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246,246,246,0.7);
+  margin-bottom: 1rem;
+}
+
+.hero-heading {
+  margin: 0 0 0.8rem;
+}
+
+.hero-name {
+  display: inline-block;
+  font-size: clamp(2.6rem, 5vw, 3.6rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  background: linear-gradient(120deg, #4aa8ff, #9f7bff, #4aa8ff);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: heroGradient 7s ease-in-out infinite;
+}
+
+.hero-subtitle {
+  max-width: 32rem;
+  font-size: 0.98rem;
+  color: rgba(246,246,246,0.8);
+}
+
+/* Scroll hint + dot */
+.hero-scroll-hint {
+  margin-top: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246,246,246,0.7);
+}
+
+.scroll-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #b58cff;
+  animation: scrollPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(4px); opacity: 0.4; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ============================================================
+   CC PROJECTS LIST (INDEX #cc-lab)
+   ============================================================ */
+
+.projects-list {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 5rem;
+}
+
+.section-label {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246,246,246,0.7);
+  margin-bottom: 2rem;
+}
+
+.project-item {
+  display: grid;
+  grid-template-columns: 80px minmax(0,1fr);
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.project-item:last-of-type {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.project-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.8rem;
+  color: rgba(246,246,246,0.6);
+}
+
+.project-number {
+  letter-spacing: 0.18em;
+}
+
+.project-year {
+  align-self: flex-start;
+}
+
+.project-title {
+  margin: 0 0 0.4rem;
+  font-weight: 500;
+  font-size: 1.15rem;
+}
+
+.project-title a {
+  text-decoration: none;
+  color: #f6f6f6;
+}
+
+.project-title a:hover {
+  color: #4aa8ff;
+}
+
+.project-description {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  color: rgba(246,246,246,0.82);
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(246,246,246,0.8);
+}
+
+/* ============================================================
+   GENERIC PAGE LAYOUT (.page)
+   ============================================================ */
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 7rem 1.5rem 4rem;
+}
+
+.page-heading {
+  font-size: 2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.page-subtitle {
+  font-size: 0.95rem;
+  color: rgba(246,246,246,0.8);
+  margin-bottom: 2rem;
+}
+
+.page p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(246,246,246,0.9);
+}
+
+.page-section-title {
+  margin-top: 2.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ============================================================
+   SKETCH WRAPPER (EMBEDDED P5 / IFRAMES)
+   ============================================================ */
+
+.sketch-wrapper {
+  position: relative;
+  margin: 2.5rem auto;
+  display: flex;
+  justify-content: center;
+}
+
+.sketch-embed {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: radial-gradient(circle at top left, rgba(74,168,255,0.15), transparent 55%);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  cursor: zoom-in;
+}
+
+.sketch-embed iframe {
+  display: block;
+  max-width: 100%;
+  border: none;
+}
+
+/* smooth fade when entering fullscreen */
+.sketch-wrapper {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.sketch-wrapper.is-fullscreen {
+  opacity: 1;
+  transform: scale(1.0);
+}
+
+
+/* For p5 Part 3 – canvas defines the size */
+#sketch-container canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ============================================================
+   GALLERY GRID (OTHER WORKS)
+   ============================================================ */
+
+.gallery {
+  margin-top: 1.5rem;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.75rem;
+  margin-top: 1rem;
+}
+
+.gallery-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery-thumb {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: radial-gradient(circle at top left, rgba(74,168,255,0.16), rgba(2,3,8,1));
+}
+
+.gallery-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.gallery-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.01);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.gallery-item:hover .gallery-thumb img {
+  transform: scale(1.04);
+  opacity: 0.96;
+}
+
+.gallery-item:hover .gallery-thumb::after {
+  opacity: 1;
+}
+
+.gallery-caption {
+  margin-top: 0.6rem;
+}
+
+.gallery-title {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 500;
+}
+
+.gallery-meta {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(246,246,246,0.6);
+}
+
+.gallery-text {
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(246,246,246,0.86);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 720px) {
+  .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .project-item {
+    grid-template-columns: 1fr;
+  }
+
+  .project-meta {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .hero-text {
+    padding-top: 6rem;
+    padding-bottom: 3rem;
+  }
+
+  .work-card {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+}
+
+/* ============================================================
+   PORTFOLIO SECTION (TOP OF INDEX)
+   ============================================================ */
+
+.portfolio-section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 5rem;
+}
+
+.section-heading {
+  max-width: 680px;
+  margin-bottom: 3rem;
+}
+
+.section-kicker {
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246,246,246,0.7);
+  margin: 0 0 0.8rem;
+}
+
+.section-title {
+  font-size: 1.7rem;
+  font-weight: 500;
+  margin: 0 0 0.6rem;
+}
+
+.section-intro {
+  font-size: 0.95rem;
+  color: rgba(246,246,246,0.82);
+  margin: 0;
+}
+
+.work-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
+/* Individual portfolio card */
+
+.work-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.3fr);
+  gap: 3rem;
+  padding: 2.5rem 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.work-card:last-of-type {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* blurred glow behind card */
+
+.work-card::before {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -12%;
+  height: 70%;
+  background: radial-gradient(circle at center, rgba(74,168,255,0.3), rgba(2,3,8,0));
+  filter: blur(32px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.work-card:hover::before {
+  opacity: 1;
+}
+
+.work-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.work-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.8rem;
+  color: rgba(246,246,246,0.66);
+}
+
+.work-number {
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.work-year {
+  opacity: 0.8;
+}
+
+.work-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.work-title-link {
+  text-decoration: none;
+  color: #4aa8ff;
+}
+
+.work-title-link:hover {
+  text-decoration: underline;
+}
+
+.work-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(246,246,246,0.86);
+}
+
+.work-right {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(246,246,246,0.84);
+}
+
+.work-detail {
+  opacity: 0;
+  transform: translateY(6px);
+  filter: blur(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+}
+
+.work-card:hover .work-detail {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ============================================================
+   PROJECT DETAIL PAGES — LAYOUT & SKETCH
+   ============================================================ */
+
+.page--project {
+  max-width: 960px;
+}
+
+.page--project .page-text {
+  max-width: 44rem;
+  margin: 2rem auto 0;
+}
+
+.page--project .sketch-wrapper {
+  margin: 2.25rem auto 2.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.page--project .sketch-embed {
+  padding: 1.5rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: radial-gradient(circle at top left, rgba(74,168,255,0.18), transparent 60%);
+  box-shadow: 0 22px 48px rgba(0,0,0,0.55);
+}
+
+/* Let the canvas grow but keep aspect ratio sharp */
+.page--project #sketch-container canvas {
+  display: block;
+  width: 480px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Hard override: make project sketches as big as possible in fullscreen
+   without stretching (preserve aspect ratio) */
+.sketch-wrapper.is-fullscreen #sketch-container canvas,
+.sketch-wrapper.is-fullscreen #sketch-container iframe {
+  display: block;
+  /* Let the browser keep the intrinsic aspect ratio */
+  height: 100vh !important;
+  width: auto !important;
+  max-height: 100vh !important;
+  max-width: 100vw !important;
+}
+
+
+/* Section titles on project pages – blue, slightly larger */
+.page--project .page-section-title {
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: #4aa8ff;
+}
+
+/* Main project title glow (purple, gentle) */
+.page-heading {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+
+.page-heading::before {
+  content: "";
+  position: absolute;
+  inset: -0.35rem -1.8rem;
+  z-index: -1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(181, 140, 255, 0.55) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(111, 86, 230, 0.52) 0, transparent 55%);
+  filter: blur(18px);
+  opacity: 0.7;
+  pointer-events: none;
+  animation: projectHeadingGlow 11s ease-in-out infinite alternate;
+}
+
+@keyframes projectHeadingGlow {
+  0% {
+    transform: translate3d(-4px, 2px, 0) scale(0.98);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(3px, -2px, 0) scale(1.03);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(2px, 3px, 0) scale(1);
+    opacity: 0.7;
+  }
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+
+[data-scroll] {
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(8px);
+  transition: opacity 0.7s ease, transform 0.7s ease, filter 0.7s ease;
+}
+
+[data-scroll].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* gentler version inside .page containers */
+.page [data-scroll] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.page [data-scroll].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   PROJECT SKETCH FULLSCREEN OVERLAY
+   ============================================================ */
+
+.sketch-fullscreen-toggle {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 5;
+  padding: 0.4rem 0.75rem;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(5, 7, 15, 0.7);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.sketch-fullscreen-toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+/* TRUE fullscreen: covers everything, no page text visible */
+.sketch-wrapper.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  margin: 0;                /* override the normal 2.5rem margin */
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: #020308;      /* solid background so text underneath never shows */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The frame itself becomes full-viewport */
+.sketch-wrapper.is-fullscreen .sketch-embed {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: #020308;
+  cursor: default;
+}
+
+/* Make the work itself fill the screen */
+.sketch-wrapper.is-fullscreen canvas,
+.sketch-wrapper.is-fullscreen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Close button floats on top in the corner */
+.sketch-wrapper.is-fullscreen .sketch-fullscreen-toggle {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  bottom: auto;
+  cursor: pointer;
+}
+
+body.sketch-lock-scroll {
+  overflow: hidden;
+}

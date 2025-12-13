@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data Portrait — Water Intake Waves · Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#cc-lab">Critical Computation</a>
+        <a href="../about.html">About</a>
+        <!-- <a href="../other-works.html">Other Works</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="page page--project">
+    <h1 class="page-heading">Data Portrait — Water Intake Waves</h1>
+
+    <p class="page-subtitle">
+      A weekly water-intake diary translated into stacked 3D waves. Each horizontal sheet
+      represents one glass of water, and hovering over a day reveals its wave stack in motion.
+    </p>
+
+    <!-- p5 sketch front and center -->
+    <section class="sketch-wrapper">
+      <div id="sketch-container" class="sketch-embed"></div>
+    </section>
+
+    <section class="page-text">
+      <h2 class="page-section-title">Overview</h2>
+      <p>
+        This data portrait visualizes my daily water intake throughout the week. The personal
+        habit I was tracking was how many glasses of water I drink each day. Each horizontal
+        wave represents one glass of water, and the number of stacked waves corresponds to the
+        total glasses I drank on that day. The color gradient from deep teal to lighter cyan
+        represents time and variation between days, creating a calm but dynamic visualization
+        that feels like moving water.
+      </p>
+
+      <h2 class="page-section-title">How to read it</h2>
+      <p>
+        Each day of the week is displayed in the footer bar. Hovering over a day reveals its
+        corresponding wave pattern in 3D, where each horizontal sheet equals one glass of water.
+        Taller stacks indicate days when I drank more water. The viewer can orbit around the waves
+        to explore their shapes from different angles, and double-clicking a day locks the display
+        in place for closer viewing. A single click unlocks the portrait and returns it to hover
+        mode.
+      </p>
+
+      <h2 class="page-section-title">Process & reflection</h2>
+      <p>
+        I started by recording how many glasses of water I drank each day for a week and then
+        used Perlin noise to generate flowing 3D surfaces that rise and fall gently. I experimented
+        with different color schemes, eventually choosing darker aquamarine tones to keep the
+        atmosphere calm but rich. Interaction became an important part of the design: the hover and
+        lock mechanics let the viewer move between comparing days and studying a single day in more
+        detail.
+      </p>
+      <p>
+        Through tracking my water intake, I noticed that my hydration habits are closely linked to
+        how busy or relaxed my schedule is. On days when I had more free time, I naturally remembered
+        to drink more water, while on busier days I often forgot until late at night. Some of this
+        context disappears in the visualization—the waves communicate rhythm and volume, but not
+        mood or stress. Still, turning the numbers into motion made those invisible routines feel
+        more tangible, and helped me see how small habits are shaped by my daily environment and
+        energy.
+      </p>
+    </section>
+  </main>
+
+  <!-- p5.js + sketch -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="../p5/assignment-6/sketch.js"></script>
+  <script src="../assets/js/project-page.js"></script>
+
+</body>
+</html>

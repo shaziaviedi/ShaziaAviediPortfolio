@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Optical Illusion — Wayang Lattice · Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#cc-lab">Critical Computation</a>
+        <a href="../about.html">About</a>
+        <!-- <a href="../other-works.html">Other Works</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="page page--project">
+    <h1 class="page-heading">Optical Illusion — Wayang Lattice</h1>
+
+    <p class="page-subtitle">
+      An optical illusion that hides a wayang-inspired silhouette inside rotating lattices of
+      equilateral triangles. The entire figure and background are constructed from geometry, so
+      the character only resolves as the global rotation steps through its 0–120–240° cycle.
+    </p>
+
+    <!-- p5 sketch front and center -->
+    <section class="sketch-wrapper">
+      <div id="sketch-container" class="sketch-embed"></div>
+    </section>
+
+    <section class="page-text">
+      <h2 class="page-section-title">Overview</h2>
+      <p>
+        I began by studying modular geometric patterns that could mirror the rhythmic pacing and
+        silhouette logic of wayang shadow puppetry from my culture. Wayang relies on repetition,
+        strong contours, and timed shifts in light to guide attention. I translated these ideas
+        into code by building a masked silhouette reminiscent of wayang figures and filling it,
+        as well as the background, with alternating lattices of equilateral triangles. The goal
+        was to compose the image entirely from geometry so that recognition would depend on
+        motion and timing rather than on drawn outlines.
+      </p>
+
+      <h2 class="page-section-title">How it works</h2>
+      <p>
+        The illusion’s behavior depends on discrete 120-degree rotations that advance every few
+        seconds. This cadence helps the figure drift from abstraction toward clarity at a
+        predictable moment. I tuned spacing, triangle size, and contrast to balance density with
+        negative space, and ensured that every triangle rotated in sync, including hand-placed
+        details and the procedural grid. Palette tests ranged from high contrast for a sharper
+        reveal to muted tones that recall oiled leather and lamplight in traditional wayang.
+      </p>
+
+      <h2 class="page-section-title">Reflection</h2>
+      <p>
+        This work can be deployed in several contexts. As a browser extension, it could animate
+        during idle time, allow users to select silhouettes, and let them set the tempo so the
+        image becomes clear every few seconds. It also lends itself to wearables: a smartwatch
+        face could “resolve” the figure at regular intervals, while an e-ink brooch or LED scarf
+        could cycle through the rotational states in low power. In a gallery setting, a wall
+        projection paired with ambient audio could evoke the atmosphere of wayang staging. Across
+        these deployments, the core contribution remains a cultural shadow form that steps into
+        clarity through rhythm, light, and patterned motion.
+      </p>
+    </section>
+  </main>
+
+  <!-- p5.js + sketch -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="../p5/assignment-5/sketch.js"></script>
+  <script src="../assets/js/project-page.js"></script>
+
+</body>
+</html>

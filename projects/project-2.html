@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Face Generator — Cat Variations · Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#cc-lab">Critical Computation</a>
+        <a href="../about.html">About</a>
+        <!-- <a href="../other-works.html">Other Works</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="page page--project">
+    <h1 class="page-heading">Face Generator — Cat Variations</h1>
+
+    <p class="page-subtitle">
+      A parameterized cat face that redraws itself on every click. Each version samples between
+      a “minimum” and “maximum” drawing, while the eyes softly track the cursor.
+    </p>
+
+    <!-- p5 sketch front and center -->
+    <section class="sketch-wrapper">
+      <div id="sketch-container" class="sketch-embed"></div>
+    </section>
+
+    <section class="page-text">
+      <h2 class="page-section-title">Overview</h2>
+      <p>
+        This sketch starts from two reference drawings on a 400×400 grid: a “minimum” and “maximum”
+        cat face. Every control point in the head, ears, fur patches, eyes, and whiskers has a lower
+        and upper bound. On each mouse click, the program samples between those bounds to generate
+        a new but still recognizably feline variation.
+      </p>
+
+      <p>
+        The face is built from closed Bézier paths for the head, ears, and markings; open Bézier
+        paths for the jaw and whiskers; and ellipses for irises and pupils. A thick white frame
+        and a pink background hold the character together visually.
+      </p>
+
+      <h2 class="page-section-title">How it works</h2>
+      <p>
+        The generator stores all geometry in a single parameter object <code>P</code>. Helpers like
+        <code>makePath()</code> and <code>makeSeg()</code> interpolate between “min” and “max”
+        anchor points and handles to produce each new path. After drawing the head, the code uses
+        a generic <code>clipToPath()</code> function so ears, fur patterns, and eyes are all
+        clipped to the correct regions without custom cases.
+      </p>
+
+      <p>
+        The eyes add a second layer of interaction: irises and pupils drift slightly toward the
+        mouse. Because they’re rendered while clipped to each eyelid shape, they never spill out of
+        the face, even when the cursor is at the edge of the canvas.
+      </p>
+
+      <h2 class="page-section-title">Reflection</h2>
+      <p>
+        Most of the work here was about designing a <em>space</em> of drawings rather than a single
+        cat. Small constraints made a huge difference: enforcing “outward” cheeks relative to the
+        head’s center kept silhouettes believable; anchoring the mouth to the nose avoided gaps;
+        and capping pupil size as a fraction of iris size stopped proportions from drifting into
+        the uncanny.
+      </p>
+
+      <p>
+        Cleanup utilities also ended up being crucial. A “tidy whisker” function aligns whisker
+        roots near the nose, enforces a minimum reach, bows the handles outward, and limits
+        vertical wobble so the lines feel deliberate but still varied. Overall, the project shifted
+        my mindset from simply drawing a face to authoring a generative system with its own rules,
+        failures, and personality.
+      </p>
+    </section>
+  </main>
+
+  <!-- p5.js + sketch -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+  <!-- quick debug to confirm p5 is loaded -->
+  <script>
+    console.log("p5 loaded?", !!window.p5);
+  </script>
+
+  <!-- IMPORTANT: adjust this path if your folder isn't exactly ../assignment-2/sketch.js -->
+  <script src="../p5/assignment-2/sketch.js"></script>
+  <script src="../assets/js/project-page.js"></script>
+
+</body>
+</html>
+

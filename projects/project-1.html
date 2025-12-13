@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lost and Found — Gym from Memory · Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#cc-lab">Critical Computation</a>
+        <a href="../about.html">About</a>
+        <!-- <a href="../other-works.html">Other Works</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- NOTE: extra class page--project so we can style project pages slightly differently -->
+  <main class="page page--project">
+    <h1 class="page-heading" data-scroll>Lost and Found — Gym from Memory</h1>
+
+    <p class="page-subtitle" data-scroll>
+      A compact gym reconstructed from my partner Edgar’s description only, using p5.js primitives,
+      custom paths, and repeated treadmills.
+    </p>
+
+    <!-- BIG sketch first -->
+    <section class="sketch-wrapper" data-scroll>
+      <div id="sketch-container" class="sketch-embed"></div>
+    </section>
+
+    <!-- Shorter, more focused text -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Overview</h2>
+      <p data-scroll>
+        Edgar described a classroom-sized rectangular gym: a short entrance, three treadmills in the
+        front-left corner, a bike beside them, a mirror on the right wall, a bench press in front of it,
+        and a rack with “around 20” dumbbells. I translated that language into a tidy top-view layout
+        where cardio equipment lives on the left and strength equipment clusters near the mirror.
+      </p>
+
+      <h2 class="page-section-title" data-scroll>How it’s built</h2>
+      <p data-scroll>
+        The room uses triangles and quads for walls and floor, plus a limited palette for floor, wall,
+        equipment, and shadow. One treadmill is drawn in <code>drawTreadmillShape()</code> and reused
+        three times with <code>drawTreadmillAt()</code>. The bike, bench press, and dumbbell rack are
+        custom <code>beginShape()</code> paths, and a soft <code>blendMode(ADD)</code> highlight on the
+        mirror hints at reflection.
+      </p>
+
+      <h2 class="page-section-title" data-scroll>Reflection</h2>
+      <p data-scroll>
+        The prompt asked for a strict “top view,” but I nudged the drawing toward an isometric feel so
+        machines read more clearly. I stylized spacing and dumbbell count to keep the composition clean,
+        and most debugging came from layering shadows under equipment and turning one-off code into
+        reusable functions so the scene stays editable.
+      </p>
+    </section>
+  </main>
+
+  <!-- p5.js + sketch -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="../p5/assignment-1/sketch.js"></script>
+  <script src="../assets/js/project-page.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Nafiza Shazia Aviedi · Portfolio & CC Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="#portfolio">Portfolio</a>
+        <a href="#cc-lab">Critical Computation</a>
+        <a href="about.html">About</a>
+        <!-- <a href="other-works.html">Other Works</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- fixed blur overlay between the 3D canvas and content -->
+  <!-- <div id="background-blur-layer"></div> -->
+
+
+  <main>
+    <!-- Hero with 3D butterfly constellation -->
+    <section class="hero">
+      <canvas id="hero-canvas"></canvas>
+
+      <div class="hero-overlay">
+        <div class="hero-text" data-scroll>
+          <p class="hero-kicker">Design & Technology · Parsons School of Design</p>
+
+          <h1 class="hero-heading">
+            <span class="hero-name heading-animated">
+              Nafiza Shazia Aviedi
+            </span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Designing and coding interfaces, narratives, and systems between Jakarta and New York.
+            This page collects selected work and experiments from Critical Computation Lab and other personal projects.
+          </p>
+
+          <div class="hero-scroll-hint">
+            <span class="scroll-dot"></span>
+            <span>Scroll to explore</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== PORTFOLIO (general) ====== -->
+    <section id="portfolio" class="portfolio-section">
+      <header class="section-heading" data-scroll>
+        <p class="section-kicker">Selected work</p>
+        <h2 class="section-title heading-animated">
+          Portfolio
+        </h2>
+        <p class="section-intro">
+          A small overview of design, interaction, and research work outside Critical Computation Lab.
+          Case studies are in progress – these blocks will later link into deeper project pages.
+        </p>
+      </header>
+
+      <div class="work-list">
+        <!-- Portfolio Work 01 -->
+        <article class="work-card" data-scroll>
+          <div class="work-left">
+            <div class="work-meta">
+              <span class="work-number">01</span>
+              <span class="work-year">2025</span>
+            </div>
+
+            <h3 class="work-title">
+              <a href="#" class="work-title-link heading-animated-small">Floppy the Attention-Seeker</a>
+            </h3>
+
+            <p class="work-subtitle">
+              A needy, pet-like robot that guilt-trips you for attention while quietly 
+              siphoning your data in the background.
+            </p>
+
+            <div class="project-tags">
+              <span class="tag">Physical Computing</span>
+              <span class="tag">Design research</span>
+              <span class="tag">HCI</span>
+            </div>
+          </div>
+
+          <div class="work-right">
+            <p class="work-detail">
+              Floppy is a small, “cute” desk companion that constantly begs to be petted, 
+              picked up, and reassured. If you ignore it, its lights flicker, 
+              its voice gets shaky, and it threatens to “explode”; 
+              when you finally comfort it, the robot secretly ramps up its data-stealing behavior. 
+              Built with Arduino, sound, and reactive lighting, the piece turns dark patterns 
+              into literal creature behavior, making emotional manipulation and data extraction 
+              feel uncomfortably visible.
+            </p>
+          </div>
+        </article>
+
+        <!-- Portfolio Work 02 -->
+        <article class="work-card" data-scroll>
+          <div class="work-left">
+            <div class="work-meta">
+              <span class="work-number">02</span>
+              <span class="work-year">2025</span>
+            </div>
+
+            <h3 class="work-title">
+              <a href="#" class="work-title-link heading-animated-small">Pomodoro Lamp</a>
+            </h3>
+
+            <p class="work-subtitle">
+              A soft silicone Pomodoro lamp that turns study sessions into ambient light 
+              cues instead of another stressful screen.
+            </p>
+
+            <div class="project-tags">
+              <span class="tag">AI interface</span>
+              <span class="tag">Accessibility</span>
+              <span class="tag">Speculative design</span>
+            </div>
+          </div>
+
+          <div class="work-right">
+            <p class="work-detail">
+              The Pomodoro Lamp is a tap-to-start timer disguised as a calm, glowing orb. 
+              Users choose presets (25/5, 50/10) or custom cycles on a small display, 
+              while the silicone sphere handles the rest: steady light during focus, 
+              slow “breathing” shifts during breaks, and subtle color changes as time runs out. 
+              By combining haptics, light, and minimal UI, the project explores how 
+              time-management tools can be felt in the body rather than micromanaged on yet another app.
+            </p>
+          </div>
+        </article>
+
+        <!-- Portfolio Work 03 -->
+        <article class="work-card" data-scroll>
+          <div class="work-left">
+            <div class="work-meta">
+              <span class="work-number">03</span>
+              <span class="work-year">2024</span>
+            </div>
+
+            <h3 class="work-title">
+              <a href="#" class="work-title-link heading-animated-small">Generative Batik</a>
+            </h3>
+
+            <p class="work-subtitle">
+             A generative p5.js system that reinterprets Indonesian batik motifs as living, 
+             evolving digital patterns.
+            </p>
+
+            <div class="project-tags">
+              <span class="tag">Physical computing</span>
+              <span class="tag">Web visualization</span>
+              <span class="tag">Speculative ecology</span>
+            </div>
+          </div>
+
+          <div class="work-right">
+            <p class="work-detail">
+              This project treats batik as an algorithmic language. Using code, I translate canonical 
+              motifs like Parang, Sekar Jagad, Mega Mendung, Sidomukti, Sidoluhur, and Kawung into 
+              parametric rules that can be remixed, layered, and animated. The goal isn’t to replace 
+              hand-drawn batik, but to frame it as a living system—one that can be encoded, 
+              manipulated, and reimagined in digital space while still honoring its cultural logic 
+              and rhythm.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ====== CRITICAL COMPUTATION LAB (7 projects) ====== -->
+    <section id="cc-lab" class="projects-list">
+      <h2 class="section-label heading-animated-small" data-scroll>Critical Computation Lab · Projects</h2>
+
+      <!-- CC Project 1 -->
+      <article class="project-item" data-scroll>
+        <div class="project-meta">
+          <span class="project-number">01</span>
+          <span class="project-year">2024</span>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="projects/project-1.html">Lost and Found — Gym from Memory</a>
+          </h3>
+          <p class="project-description">
+            A p5.js drawing of my partner Edgar’s old gym, built only from a written description.
+            The sketch explores how ambiguous language about walls, mirrors, and machines turns into
+            precise geometry, shadows, and repetition in code.
+          </p>
+          <div class="project-tags">
+            <span class="tag">p5.js</span>
+            <span class="tag">drawing</span>
+            <span class="tag">language → code</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- CC Project 2 -->
+      <article class="project-item" data-scroll>
+        <div class="project-meta">
+          <span class="project-number">02</span>
+          <span class="project-year">2024</span>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="projects/project-2.html">Face Generator — Cat Variations</a>
+          </h3>
+          <p class="project-description">
+            A parameterized cat face built from Bézier paths and color palettes. On every click,
+            the sketch re-samples proportions, fur markings, and eye colors while keeping the
+            character coherent. The eyes subtly track the cursor so each cat feels alive.
+          </p>
+          <div class="project-tags">
+            <span class="tag">p5.js</span>
+            <span class="tag">generative</span>
+            <span class="tag">character design</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- CC Project 3 -->
+      <article class="project-item" data-scroll>
+        <div class="project-meta">
+          <span class="project-number">03</span>
+          <span class="project-year">2024</span>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="projects/project-3.html">Experimental Clock — Metamorph</a>
+          </h3>
+          <p class="project-description">
+            An experimental clock where six chrysalises crack open over two minutes, releasing
+            butterflies that orbit on dashed rings. Each lap marks a twenty-second interval, and
+            the highlighted trail shows where time has just passed.
+          </p>
+          <div class="project-tags">
+            <span class="tag">p5.js</span>
+            <span class="tag">time</span>
+            <span class="tag">animation</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- CC Project 4 -->
+      <article class="project-item" data-scroll>
+        <div class="project-meta">
+          <span class="project-number">04</span>
+          <span class="project-year">2024</span>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="projects/project-4.html">Exquisite Corpse — The Party Never Ends</a>
+          </h3>
+          <p class="project-description">
+            A non-human “exquisite corpse” creature based on a radioactive platypus in a party hat.
+            Hand-coded with Bézier paths in p5.js, the drawing sits between cute and unsettling,
+            turning pollution, mutation, and leftover celebration into a single absurd character.
+          </p>
+          <div class="project-tags">
+            <span class="tag">p5.js</span>
+            <span class="tag">character design</span>
+            <span class="tag">drawing</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- CC Project 5 -->
+      <article class="project-item" data-scroll>
+        <div class="project-meta">
+          <span class="project-number">05</span>
+          <span class="project-year">2024</span>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="projects/project-5.html">Optical Illusion — Wayang Lattice</a>
+          </h3>
+          <p class="project-description">
+            An optical illusion that hides a wayang-inspired silhouette inside rotating lattices
+            of equilateral triangles. The entire figure and background are built from geometry,
+            so the character only resolves when the global rotation steps through its 0–120–240
+            degree cycle.
+          </p>
+          <div class="project-tags">
+            <span class="tag">p5.js</span>
+            <span class="tag">pattern</span>
+            <span class="tag">optical illusion</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- CC Project 6 -->
+      <article class="project-item" data-scroll>
+        <div class="project-meta">
+          <span class="project-number">06</span>
+          <span class="project-year">2024</span>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="projects/project-6.html">Data Portrait — Water Intake Waves</a>
+          </h3>
+          <p class="project-description">
+            A weekly water-intake diary translated into stacked 3D waves. Each horizontal
+            sheet stands in for one glass of water, and hovering over a day reveals its
+            animated wave stack in WebGL.
+          </p>
+          <div class="project-tags">
+            <span class="tag">p5.js</span>
+            <span class="tag">data portrait</span>
+            <span class="tag">3D visualization</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- CC Project 7 -->
+      <article class="project-item" data-scroll>
+        <div class="project-meta">
+          <span class="project-number">07</span>
+          <span class="project-year">2024</span>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="projects/project-7.html">Autobiographical Game — Indomie Run</a>
+          </h3>
+          <p class="project-description">
+            A final CC Lab piece that brings together time, interaction, and narrative
+            in a single browser experiment.
+          </p>
+          <div class="project-tags">
+            <span class="tag">p5.js</span>
+            <span class="tag">final</span>
+            <span class="tag">narrative</span>
+          </div>
+        </div>
+      </article>
+
+
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <!-- Map the bare specifier "three" to the CDN module -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.159.0/build/three.module.js"
+    }
+  }
+  </script>
+
+  <script type="module" src="assets/js/hero-3d.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

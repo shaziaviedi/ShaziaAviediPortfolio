@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Experimental Clock — Metamorph · Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#cc-lab">Critical Computation</a>
+        <a href="../about.html">About</a>
+        <!-- <a href="../other-works.html">Other Works</a> -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="page page--project">
+    <h1 class="page-heading">Experimental Clock — Metamorph</h1>
+
+    <p class="page-subtitle">
+      A two-minute clock told through six chrysalises and their butterflies. Every 20 seconds,
+      a new butterfly hatches, circles its orbit, and leaves a highlighted trail of where time
+      just passed.
+    </p>
+
+    <!-- p5 sketch front and center -->
+    <section class="sketch-wrapper">
+      <div id="sketch-container" class="sketch-embed"></div>
+    </section>
+
+    <section class="page-text">
+      <h2 class="page-section-title">Overview</h2>
+      <p>
+        The clock measures 120 seconds as a small ecosystem instead of a number. Six chrysalises
+        hang along a curved branch. Every 20 seconds, another chrysalis moves from
+        <em>default</em> to <em>cracked</em> to <em>open</em>, and a butterfly takes flight.
+        Each butterfly orbits the center once in 20 seconds on its own dashed ring, which briefly
+        glows where it just flew. When the last orbit finishes, all six butterflies drift away
+        and fade.
+      </p>
+
+      <h2 class="page-section-title">How it works</h2>
+      <p>
+        Time is driven by <code>millis()</code> and split into 20-second intervals. Arrays store
+        the chrysalis positions, ring radii, and per-butterfly timing. Each ring is precomputed as
+        a set of dash segments, and the sketch draws a faint base ring plus a darker highlight
+        behind the current butterfly, mapped from seconds to angle around the circle.
+      </p>
+      <p>
+        The chrysalises sit on a cosine-based arc that matches the branch, with small per-cocoon
+        offsets so they feel nestled into the illustration. Butterflies scale down on inner rings
+        to suggest depth, and after the main 140-second sequence, each one is handed off to a
+        dispersal state: a simple physics update that gives them a launch direction, friction,
+        spin, and a timed fade-out. A small numeric clock in the corner grounds the piece in
+        familiar timekeeping.
+      </p>
+
+      <h2 class="page-section-title">Reflection</h2>
+      <p>
+        Watching this clock made two minutes feel different. Before the visuals and phases were
+        in place, 120 seconds felt slow and empty. Once the chrysalises started cracking, hatching,
+        looping, and leaving trails, the same span felt shorter and more structured. My attention
+        hopped between “who is about to hatch” and “which ring is currently glowing,” instead of
+        staring at a changing number.
+      </p>
+      <p>
+        The project taught me how pacing and expectation reshape our sense of time. Clear states,
+        readable motion, and small “events” turn waiting into anticipation. Technically, it was a
+        chance to practice structuring time with arrays and state, mapping seconds to angles,
+        drawing reusable dashed arcs, and decoupling the stationary rings from the butterflies so
+        the trail reads as a memory of movement rather than just motion blur.
+      </p>
+    </section>
+  </main>
+
+  <!-- p5.js + sketch -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="../p5/assignment-3/sketch.js"></script>
+  <script src="../assets/js/project-page.js"></script>
+
+</body>
+</html>
