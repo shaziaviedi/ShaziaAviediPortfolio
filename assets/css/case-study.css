@@ -1,0 +1,499 @@
+/* ==========================================================================
+   used by: /selected/*.html
+   link:
+   <link rel="stylesheet" href="../assets/css/case-study.css" />
+   ========================================================================== */
+
+/* page wrapper — keeps case study centered and spaced under fixed header */
+.case-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 3.75rem 1.5rem 5rem; /* room for header + comfy bottom */
+}
+
+/* little row under header — back button + status text */
+.case-utility {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0 2rem;
+}
+
+.case-back {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.75);
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+}
+
+.case-back:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.case-utility-note {
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.55);
+  margin: 0;
+  text-align: right;
+}
+
+/* ==========================================================================
+   HERO
+   left = media, right = info card
+   ========================================================================== */
+
+.case-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 2.25rem;
+  align-items: stretch;
+  margin-bottom: 3.75rem;
+}
+
+.case-hero-media {
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: radial-gradient(
+    circle at top left,
+    rgba(74, 168, 255, 0.18),
+    rgba(2, 3, 8, 1)
+  );
+  min-height: 340px;
+
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+/* media fills the hero */
+.case-hero-media img,
+.case-hero-media video,
+.case-hero-media iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* placeholder if image not ready yet */
+.case-hero-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.7);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* right-side info panel */
+.case-hero-info {
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 10, 18, 0.55);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  padding: 1.5rem 1.5rem 1.25rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.case-kicker {
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.65);
+  margin: 0;
+}
+
+.case-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.case-subtitle {
+  margin: 0;
+  color: rgba(246, 246, 246, 0.82);
+  line-height: 1.55;
+  font-size: 0.98rem;
+  max-width: 40ch; /* keep it skimmable */
+}
+
+/* quick meta grid in hero */
+.case-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+  padding-top: 0.25rem;
+}
+
+.case-meta-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.75rem;
+}
+
+.case-meta-label {
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.55);
+  margin: 0 0 0.25rem;
+}
+
+.case-meta-value {
+  margin: 0;
+  color: rgba(246, 246, 246, 0.9);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+/* hero CTAs */
+.case-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.case-cta {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(246, 246, 246, 0.9);
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(5, 7, 15, 0.55);
+}
+
+.case-cta:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   MAIN LAYOUT
+   left sticky side nav + right content stack
+   ========================================================================== */
+
+.case-main {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 2.25rem;
+  align-items: start;
+}
+
+.case-sidenav {
+  position: sticky;
+  top: 6rem; /* sit under fixed site header */
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 10, 18, 0.45);
+  padding: 1rem;
+}
+
+.case-sidenav a {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.85rem;
+  text-decoration: none;
+  color: rgba(246, 246, 246, 0.72);
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.case-sidenav a:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.case-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ==========================================================================
+   SECTION MODULES
+   everything inside content uses these cards/blocks
+   ========================================================================== */
+
+.case-section {
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 10, 18, 0.35);
+  padding: 1.6rem 1.6rem 1.4rem;
+}
+
+.case-section h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: rgba(74, 168, 255, 0.9);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.case-section p {
+  margin: 0 0 0.9rem;
+  color: rgba(246, 246, 246, 0.86);
+  line-height: 1.65;
+  font-size: 0.98rem;
+  max-width: 72ch; /* prevents paragraph from going mega wide */
+}
+
+/* 2-col grid used in sections */
+.case-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+  margin-top: 1rem;
+}
+
+/* little inner cards (goals, constraints, etc.) */
+.case-card {
+  border-radius: 1.05rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 10, 18, 0.35);
+  padding: 1.1rem 1.1rem 0.95rem;
+}
+
+.case-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #f6f6f6;
+}
+
+.case-card h3 a {
+  text-decoration: none;
+  color: #f6f6f6; /* was missing # before, so fixing it */
+}
+
+.case-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: rgba(246, 246, 246, 0.82);
+  line-height: 1.6;
+}
+
+/* thesis / big one-liner callout */
+.case-quote {
+  margin-top: 1rem;
+  border-left: 2px solid rgba(74, 168, 255, 0.9);
+  padding: 0.75rem 0 0.75rem 1rem;
+  color: rgba(246, 246, 246, 0.9);
+  font-size: 1.02rem;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   PROCESS TIMELINE
+   ========================================================================== */
+
+.case-timeline {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.case-step {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(5, 7, 15, 0.35);
+}
+
+.case-step .num {
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.65);
+}
+
+.case-step h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: rgba(246, 246, 246, 0.95);
+}
+
+.case-step p {
+  margin: 0;
+  font-size: 0.93rem;
+  color: rgba(246, 246, 246, 0.82);
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   GALLERY STRIP + PLACEHOLDERS
+   ========================================================================== */
+
+.case-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.case-gallery .shot {
+  border-radius: 1.1rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  min-height: 160px;
+
+  display: grid; /* centers placeholder nicely */
+  place-items: center;
+}
+
+.case-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* generic image placeholder block */
+.case-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.7);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* big placeholder (system diagram + demo) */
+.case-img-placeholder--big {
+  min-height: 420px; /* can tweak taller/shorter later */
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* “frame” wrapper so big media blocks match the UI */
+.case-media-block {
+  margin-top: 1.2rem;
+  border-radius: 1.15rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 10, 18, 0.35);
+}
+
+/* ==========================================================================
+   NEXT / PREV NAV
+   ========================================================================== */
+
+.case-footer-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.case-footer-nav a {
+  display: block;
+  text-decoration: none;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 10, 18, 0.35);
+  padding: 1.2rem;
+  color: rgba(246, 246, 246, 0.9);
+}
+
+.case-footer-nav a:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.case-footer-nav .label {
+  font-family: "IBM Plex Mono", ui-monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.65);
+  margin-bottom: 0.35rem;
+}
+
+/* ==========================================================================
+   MOBILE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .case-hero {
+    grid-template-columns: 1fr; /* hero stacks */
+  }
+
+  .case-utility {
+    flex-direction: column;
+    align-items: flex-start; /* looks nicer on small screens */
+  }
+
+  .case-utility-note {
+    text-align: left;
+  }
+
+  .case-main {
+    grid-template-columns: 1fr; /* sidenav goes top */
+  }
+
+  .case-sidenav {
+    position: relative;
+    top: auto;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    white-space: nowrap; /* turns into scrollable chips */
+  }
+
+  .case-sidenav a {
+    flex: 0 0 auto;
+  }
+
+  .case-grid-2 {
+    grid-template-columns: 1fr; /* cards stack */
+  }
+
+  .case-gallery {
+    grid-template-columns: 1fr; /* images stack */
+  }
+
+  .case-footer-nav {
+    grid-template-columns: 1fr; /* prev/next stack */
+  }
+}
