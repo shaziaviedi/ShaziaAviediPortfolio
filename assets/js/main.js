@@ -1,6 +1,6 @@
 // main.js
-// - Scroll reveal for [data-scroll] (now supports unscroll / reset)
-// - Blur background (3D hero canvas) once you scroll past hero title
+// - scroll reveal for [data-scroll] (now supports unscroll/reset)
+// - blur background (3D hero canvas) once you scroll past hero title
 
 document.addEventListener("DOMContentLoaded", () => {
   setupScrollReveal();
