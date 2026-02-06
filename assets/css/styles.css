@@ -672,7 +672,7 @@ body.hero-blur #hero-canvas {
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.3fr);
   gap: 3rem;
 
-  padding: 2.5rem 0 3.5rem 0;
+  padding: 3.5rem 0 2.5rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -688,10 +688,24 @@ body.hero-blur #hero-canvas {
   left: 18%;
   right: 18%;
   bottom: 10%;
-  height: 70%;
+  height: 80%;
 
-  /* blue glow under card */
-  background: radial-gradient(circle at center, rgba(74, 168, 255, 0.3), rgba(2, 3, 8, 0));
+  /* blue stays the main oval, purple only shows up on the outer fade */
+  background:
+    /* base blue oval */
+    radial-gradient(
+      ellipse at center,
+      rgba(74, 168, 255, 0.32) 0%,
+      rgba(2, 3, 8, 0) 70%
+    ),
+    /* subtle purple "rim" that mostly lives near the edge */
+    radial-gradient(
+      ellipse at center,
+      rgba(181, 140, 255, 0) 45%,
+      rgba(181, 140, 255, 0.15) 62%,
+      rgba(2, 3, 8, 0) 78%
+    );
+
   filter: blur(32px);
   opacity: 0;
 
@@ -699,6 +713,7 @@ body.hero-blur #hero-canvas {
   transition: opacity 0.4s ease;
   z-index: -1;
 }
+
 
 /* glow appears on hover */
 .work-card:hover::before {
