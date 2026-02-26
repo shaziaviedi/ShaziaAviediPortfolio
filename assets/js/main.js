@@ -1,6 +1,6 @@
 // main.js
-// - Scroll reveal for [data-scroll]
-// - Blur background (3D hero canvas) once you scroll past hero title
+// - scroll reveal for [data-scroll] (now supports unscroll/reset)
+// - blur background (3D hero canvas) once you scroll past hero title
 
 document.addEventListener("DOMContentLoaded", () => {
   setupScrollReveal();
@@ -11,6 +11,7 @@ function setupScrollReveal() {
   const els = document.querySelectorAll("[data-scroll]");
   if (!els.length) return;
 
+  // if no IntersectionObserver, just show everything
   if (!("IntersectionObserver" in window)) {
     els.forEach((el) => el.classList.add("is-visible"));
     return;
@@ -19,14 +20,19 @@ function setupScrollReveal() {
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
+        // when it enters view -> show
         if (entry.isIntersecting) {
           entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
+        } else {
+          // when it leaves view -> hide again (so animation can replay)
+          entry.target.classList.remove("is-visible");
         }
       });
     },
     {
       threshold: 0.15,
+      // a little earlier trigger feels nicer
+      rootMargin: "0px 0px -10% 0px",
     }
   );
 
