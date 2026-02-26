@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Interactive Typography · Advanced Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- main site css -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+
+  <!-- only for the fragile sketch -->
+  <link rel="stylesheet" href="../p5-advanced/assignment-2/fragile/style.css">
+</head>
+
+<body>
+  <!-- same header as rest of site -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#advanced-cc">Critical Computation</a>
+        <a href="../about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- same project page layout style as cc lab pages -->
+  <main class="page page--project">
+    <h1 class="page-heading heading-animated" data-scroll>Interactive Typography</h1>
+
+    <p class="page-subtitle" data-scroll>
+      Three interactive poster sketches where motion and interaction support the meaning of each word.
+      Words: Clean, Fragile, Drift.
+    </p>
+
+    <!-- CLEAN -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Clean</h2>
+      <p data-scroll>
+        A foggy window scene where a squeegee swipe clears the glass and reveals “clean.”
+      </p>
+    </section>
+
+    <!-- sketch frame -->
+    <section class="sketch-wrapper" data-scroll>
+      <!-- p5 will mount canvas into this div -->
+      <div id="sketch-clean" class="sketch-embed"></div>
+    </section>
+
+    <!-- FRAGILE -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Fragile</h2>
+      <p data-scroll>
+        An egg drops and cracks, and the yolk spreads into a puddle that spells “fragile.”
+      </p>
+    </section>
+
+    <section class="sketch-wrapper" data-scroll>
+      <div id="sketch-fragile" class="sketch-embed"></div>
+    </section>
+
+    <!-- DRIFT -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Drift</h2>
+      <p data-scroll>
+        Blow on a dandelion and the seeds drift across the canvas, gradually forming “drift.”
+      </p>
+    </section>
+
+    <section class="sketch-wrapper" data-scroll>
+      <div id="sketch-drift" class="sketch-embed"></div>
+    </section>
+
+    <!-- optional: short reflection section like cc lab pages -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Reflection</h2>
+      <p data-scroll>
+        Each sketch treats typography like a system with rules: what triggers it, how it moves, and what feedback shows up.
+        The goal was for the interaction to “say the word” before the letters fully form.
+      </p>
+    </section>
+  </main>
+
+
+    <!-- p5 core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+    <!-- CLEAN -->
+    <script src="../p5-advanced/assignment-2/clean/sketch.js"></script>
+    <script src="../p5-advanced/assignment-2/clean/run.js"></script>
+
+    <!-- FRAGILE -->
+    <script src="../p5-advanced/assignment-2/fragile/sketch.js"></script>
+    <script src="../p5-advanced/assignment-2/fragile/run.js"></script>
+
+    <!-- DRIFT -->
+    <script src="../p5-advanced/assignment-2/drift/sketch.js"></script>
+    <script src="../p5-advanced/assignment-2/drift/run.js"></script>
+
+
+  <!-- keeps scroll reveal behavior consistent with rest of site -->
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
