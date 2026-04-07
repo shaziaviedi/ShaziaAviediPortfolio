@@ -41,13 +41,12 @@
     <section class="page-text">
       <h2 class="page-section-title" data-scroll>Clean</h2>
       <p data-scroll>
-        A foggy window scene where a squeegee swipe clears the glass and reveals “clean.”
+        A foggy window scene where a squeegee swipe clears the glass and reveals clean.
       </p>
     </section>
 
     <!-- sketch frame -->
     <section class="sketch-wrapper" data-scroll>
-      <!-- p5 will mount canvas into this div -->
       <div id="sketch-clean" class="sketch-embed"></div>
     </section>
 
@@ -55,7 +54,7 @@
     <section class="page-text">
       <h2 class="page-section-title" data-scroll>Fragile</h2>
       <p data-scroll>
-        An egg drops and cracks, and the yolk spreads into a puddle that spells “fragile.”
+        An egg drops and cracks, and the yolk spreads into a puddle that spells fragile.
       </p>
     </section>
 
@@ -67,7 +66,7 @@
     <section class="page-text">
       <h2 class="page-section-title" data-scroll>Drift</h2>
       <p data-scroll>
-        Blow on a dandelion and the seeds drift across the canvas, gradually forming “drift.”
+        Blow on a dandelion and the seeds drift across the canvas, gradually forming drift.
       </p>
     </section>
 
@@ -75,32 +74,63 @@
       <div id="sketch-drift" class="sketch-embed"></div>
     </section>
 
-    <!-- optional: short reflection section like cc lab pages -->
+    <!-- short reflection section -->
     <section class="page-text">
       <h2 class="page-section-title" data-scroll>Reflection</h2>
+
       <p data-scroll>
-        Each sketch treats typography like a system with rules: what triggers it, how it moves, and what feedback shows up.
-        The goal was for the interaction to “say the word” before the letters fully form.
+        Started with the three words and treated each one like an interaction prompt, not just a text prompt.
+        Before making anything polished, prototyped the core gesture for each sketch on a plain background to check one thing.
+        The interaction needed to communicate the word in a few seconds without instructions.
+      </p>
+
+      <p data-scroll>
+        For Clean, the first tests were just rectangles erasing a fog layer.
+        That version worked conceptually but looked too digital, so it got rebuilt as a window scene with a squeegee cursor,
+        a heavier frame, and a wipe that leaves more believable streak spacing.
+        Most of the refinement was tuning the stamp spacing so fast swipes do not look dashed,
+        and making the word readable only after enough clearing happens.
+      </p>
+
+      <p data-scroll>
+        For Fragile, the earliest prototype had the egg dropping immediately, but it felt too sudden and there was no reason to interact.
+        The click-to-rock phase came first, then a clearer state change into dropping, then the split into two shell halves so the impact feels earned.
+        The yolk word started as particles snapping to letter points and it looked too rigid,
+        so the morph got slowed down and drag plus jitter got added.
+        The particle spill also got staggered so it spreads like liquid before resolving into the word.
+        The slight blur in the egg sketch is intentional.
+        It is meant to feel like soft focus and adds to the messiness around the egg and yolk.
+      </p>
+
+      <p data-scroll>
+        For Drift, the first version moved points straight from the flower to the word and it felt mechanical.
+        The final version uses a hover zone to activate the dandelion and a touch radius to catch points gradually,
+        so it reads more like drifting seeds than a teleport.
+        The drift-off and reset phase came last, after the word formation felt stable,
+        so the loop reads like an ongoing breeze instead of a one-time animation.
+      </p>
+
+      <p data-scroll>
+        Overall, the process was prototype interaction first, then build the visual world around it,
+        then tune timing, thresholds, and motion until the behavior feels like the word instead of an effect sitting on top of text.
       </p>
     </section>
   </main>
 
+  <!-- p5 core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 
-    <!-- p5 core -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <!-- CLEAN -->
+  <script src="../p5-advanced/assignment-2/clean/sketch.js"></script>
+  <script src="../p5-advanced/assignment-2/clean/run.js"></script>
 
-    <!-- CLEAN -->
-    <script src="../p5-advanced/assignment-2/clean/sketch.js"></script>
-    <script src="../p5-advanced/assignment-2/clean/run.js"></script>
+  <!-- FRAGILE -->
+  <script src="../p5-advanced/assignment-2/fragile/sketch.js"></script>
+  <script src="../p5-advanced/assignment-2/fragile/run.js"></script>
 
-    <!-- FRAGILE -->
-    <script src="../p5-advanced/assignment-2/fragile/sketch.js"></script>
-    <script src="../p5-advanced/assignment-2/fragile/run.js"></script>
-
-    <!-- DRIFT -->
-    <script src="../p5-advanced/assignment-2/drift/sketch.js"></script>
-    <script src="../p5-advanced/assignment-2/drift/run.js"></script>
-
+  <!-- DRIFT -->
+  <script src="../p5-advanced/assignment-2/drift/sketch.js"></script>
+  <script src="../p5-advanced/assignment-2/drift/run.js"></script>
 
   <!-- keeps scroll reveal behavior consistent with rest of site -->
   <script src="../assets/js/main.js"></script>
