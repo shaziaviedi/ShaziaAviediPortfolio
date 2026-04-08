@@ -999,7 +999,7 @@ body.sketch-lock-scroll {
 /* Project 3: make the camera frame behave like a real block */
 #sketch-consent-camera.sketch-embed{
   width: 100%;
-  max-width: 960px; /* match your project page width vibe */
+  max-width: 960px; /* match project page width */
   padding: 0;
   cursor: default;
 }
@@ -1015,5 +1015,4 @@ body.sketch-lock-scroll {
   display: block;
   width: 100% !important;
   height: auto !important;
-}
 }
