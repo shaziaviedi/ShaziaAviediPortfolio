@@ -991,3 +991,29 @@ body.hero-blur #hero-canvas {
 body.sketch-lock-scroll {
   overflow: hidden;
 }
+
+/* ============================================================
+   PROJECT 3 SKETCH
+   ============================================================ */
+
+/* Project 3: make the camera frame behave like a real block */
+#sketch-consent-camera.sketch-embed{
+  width: 100%;
+  max-width: 960px; /* match your project page width vibe */
+  padding: 0;
+  cursor: default;
+}
+
+/* keep menu positioning sane */
+#sketch-consent-camera{
+  position: relative;
+  overflow: hidden;
+}
+
+/* canvas should scale visually with the frame */
+#sketch-consent-camera canvas{
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+}
