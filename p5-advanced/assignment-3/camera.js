@@ -1,15 +1,32 @@
-// camera.js
-//-global-mode p5 sketch (no run.js, no instance mode)
-//-canvas mounts into #sketch-consent-camera if it exists
+// camera.js (Project 3 - Consent Camera)
+// single-file approach (tutorial-style)
+// - uses global mode p5 (no instance mode, no run.js)
+// - mounts canvas + DOM UI into #sketch-consent-camera
+// - fixes the common "videoWidth = 0 so nothing draws" problem with safe fallbacks
+
+//VARIABLES
+
 //-camera input is cam
-//-ml5 runs facemesh + handpose
+//-canvas is mounted into #sketch-consent-camera
+//-warning overlay layer is warnLayer
+
+//DOM
+//-createCapture() webcam
+//-createDiv() menu + popup
+//-createButton() Reset
+//-createSlider() blur size
+//-createGraphics() buffers (warnLayer, activeGfx, fxGfx)
+
+//ML
+//-faceModel is facemesh/faceMesh
+//-handModel is handpose/handPose
 //-trackedFaces is my "memory" so consent sticks a bit when ppl move
 
 let cam;
 
 //MOUNT
-let mountEl = null;
 let mountId = "sketch-consent-camera";
+let mountEl = null;
 
 //LAYOUT
 let bannerH = 56;
@@ -31,8 +48,8 @@ let fxCount = 9;
 let activeEffect = 0;
 let gridOn = false;
 
-let pixelStep = 2;      //skip pixels in effects (performance)
-let previewCursor = 0;  //round robin preview update
+let pixelStep = 2; //skip pixels in effects (performance)
+let previewCursor = 0; //round robin preview update
 
 //low-res grid buffers
 let fxW = 180;
@@ -43,9 +60,9 @@ let fxGfx = [];
 let activeGfx = null;
 
 //UI
-let frameRect = { x:0, y:0, w:0, h:0 };
+let frameRect = { x: 0, y: 0, w: 0, h: 0 };
 
-let statusMsg = '';
+let statusMsg = "";
 let captureEnabled = false;
 
 //WARNING
@@ -53,7 +70,7 @@ let warnLayer;
 let warnOn = false;
 let warnTimer = 0;
 let warnDur = 90;
-let warnType = 'capture'; // 'capture' or 'filters'
+let warnType = "capture"; // 'capture' or 'filters'
 
 //INTRO POPUP
 let introOn = true;
@@ -94,21 +111,21 @@ let trackedFaces = [];
 let nextFaceId = 0;
 
 //-tune these so faces dont "reset" too fast
-let faceTTL = 60;     //frames before i consider a face gone
-let matchDist = 120;  //px distance for matching same face across frames
+let faceTTL = 60;
+let matchDist = 120;
 
 //-consent feedback
-let consentFlash = 0; //small timer so status msg sticks a bit
+let consentFlash = 0;
 
 //STRICTER OK DETECTION (TIME-BASED)
-let okHoldMsTarget = 3000;   //3 seconds
-let okHoldMs = 0;            //how long OK has been held (ms)
-let okCooldown = 0;          //frames before we allow another consent
+let okHoldMsTarget = 3000;
+let okHoldMs = 0;
+let okCooldown = 0;
 let okCooldownDur = 45;
 
-let minHandSize = 110;      //px cam-space bbox diagonal
-let pinchRatio = 0.22;      //smaller = stricter
-let openMargin = 18;        //bigger = stricter
+let minHandSize = 110;
+let pinchRatio = 0.22;
+let openMargin = 18;
 
 //UI: show live countdown in top banner while OK is detected
 let okLive = false;
@@ -117,21 +134,18 @@ let okRemainingS = 3.0;
 //CAM READY
 let camReady = false;
 
-//MOUNT SIZE
-//-canvas should be sized off the div width (keeps your “frame size” feeling)
-function getMountSize(){
-  let fallbackW = 900;
+//-keep a frame counter so we can detect "real frames" even when metadata lies
+let camFrameSeen = 0;
 
-  if(!mountEl){
-    let w = min(fallbackW, windowWidth);
-    let frameH = w / targetAspect;
-    let uiH = bannerH + topPad + statusBoxH + 12 + captureZoneH + topPad + 28;
-    return { w, h: floor(frameH + uiH) };
-  }
+//MOUNT SIZE
+function getMountSize() {
+  //fallback if mount is missing
+  if (!mountEl) return { w: windowWidth, h: windowHeight };
 
   let r = mountEl.getBoundingClientRect();
   let w = max(320, floor(r.width));
 
+  //frame wants 16:9 plus top banner/status and bottom capture bar
   let frameH = w / targetAspect;
   let uiH = bannerH + topPad + statusBoxH + 12 + captureZoneH + topPad + 28;
   let h = floor(frameH + uiH);
@@ -139,67 +153,108 @@ function getMountSize(){
   return { w, h };
 }
 
-function setup(){
-  //find mount
-  mountEl = document.getElementById(mountId) || document.body;
+//SAFE VIDEO DIMENSIONS
+//-this is the key fix: always return a usable vw/vh
+function getVideoDims() {
+  if (!cam || !cam.elt) return { vw: 1280, vh: 720 };
 
-  //mount should be positioning context for DOM UI (menu)
-  mountEl.style.position = 'relative';
-  mountEl.style.overflow = 'hidden';
+  //best: real stream dimensions
+  let vw = cam.elt.videoWidth;
+  let vh = cam.elt.videoHeight;
+
+  //fallback: p5 media element dims
+  if (!vw || !vh) {
+    vw = cam.width;
+    vh = cam.height;
+  }
+
+  //fallback: element width/height (set by cam.size)
+  if (!vw || !vh) {
+    vw = cam.elt.width;
+    vh = cam.elt.height;
+  }
+
+  //final fallback
+  if (!vw || !vh) {
+    vw = 1280;
+    vh = 720;
+  }
+
+  return { vw, vh };
+}
+
+function setup() {
+  mountEl = document.getElementById(mountId);
+
+  //if mount missing, still run, but you'll see it fullscreen-ish
+  if (mountEl) {
+    mountEl.style.position = "relative";
+    mountEl.style.overflow = "hidden";
+  }
 
   let s = getMountSize();
 
-  //canvas
+  //canvas mounts into the div
   let cnv = createCanvas(s.w, s.h);
-  cnv.parent(mountEl);
-  cnv.style('display', 'block');
   pixelDensity(1);
+
+  if (mountEl) cnv.parent(mountEl);
 
   //webcam
   cam = createCapture(
     {
-      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
-      audio: false
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
+      audio: false,
     },
     () => {
-      //capture created, video metadata might still load after
+      //callback fires when capture is created
     }
   );
   cam.hide();
 
   //mobile safari
-  if(cam.elt) cam.elt.setAttribute('playsinline', '');
+  if (cam.elt) cam.elt.setAttribute("playsinline", "");
 
-  //force predictable size (helps cam.width/cam.height become valid)
+  //force a predictable element size (helps the fallback path)
   cam.size(1280, 720);
 
-  //video readiness
-  if(cam.elt){
-    cam.elt.onloadedmetadata = () => { camReady = true; };
-    cam.elt.onplaying = () => { camReady = true; };
+  //metadata + playing events
+  if (cam.elt) {
+    cam.elt.addEventListener("loadedmetadata", () => {
+      //metadata loaded, but videoWidth can still be 0 briefly
+    });
+    cam.elt.addEventListener("playing", () => {
+      camReady = true;
+    });
   }
 
   warnLayer = createGraphics(width, height);
   warnLayer.pixelDensity(1);
 
   fxGfx = [];
-  for(let i = 0; i < fxCount; i++){
+  for (let i = 0; i < fxCount; i++) {
     let g = createGraphics(fxW, fxH);
     g.pixelDensity(1);
     fxGfx.push(g);
   }
 
   buildMenu();
-  textFont('system-ui');
+  textFont("system-ui");
 
   initMLModels();
 }
 
-function draw(){
+function draw() {
   background(0);
 
-  //camera not ready yet
-  if(!camReady){
+  //if camera is blocked / not ready yet, show a message
+  //also: mark ready once we actually see frames arriving
+  if (cam && cam.elt && cam.elt.readyState >= 2) {
+    camFrameSeen++;
+    if (camFrameSeen > 10) camReady = true; //gives the stream a moment to stabilize
+  }
+
+  if (!camReady) {
     drawLoadingScreen();
     positionMenuTopRight();
     return;
@@ -209,9 +264,9 @@ function draw(){
   frameRect = getFrameRectMax();
 
   //GRID LIVE FEED (low res)
-  if(gridOn && !prevGridOn) bakeAllTilesOnce();
+  if (gridOn && !prevGridOn) bakeAllTilesOnce();
   prevGridOn = gridOn;
-  if(gridOn) updateGridLiveTiles();
+  if (gridOn) updateGridLiveTiles();
 
   //ML updates still run even if intro is up
   updateTrackedFaces();
@@ -221,34 +276,34 @@ function draw(){
   captureEnabled = getActiveFaces().length > 0 && isAllActiveFacesConsented();
 
   //DRAW VIEW
-  if(!gridOn) drawSingle();
+  if (!gridOn) drawSingle();
   else drawGrid();
 
   //TOP BANNER
-  let bannerMsg = '';
-  if(captureEnabled){
-    bannerMsg = 'CAPTURE READY — EVERY FACE CONSENTED';
-  }else if(okLive){
-    bannerMsg = 'HOLDING OK — ' + okRemainingS.toFixed(1) + 's LEFT';
-  }else{
-    bannerMsg = 'CONSENT REQUIRED — HOLD OK HAND SIGN (3s)';
+  let bannerMsg = "";
+  if (captureEnabled) {
+    bannerMsg = "CAPTURE READY — EVERY FACE CONSENTED";
+  } else if (okLive) {
+    bannerMsg = "HOLDING OK — " + okRemainingS.toFixed(1) + "s LEFT";
+  } else {
+    bannerMsg = "CONSENT REQUIRED — HOLD OK HAND SIGN (3s)";
   }
 
-  drawTopBanner(bannerMsg, captureEnabled ? '#1f7a3a' : '#b3261e');
+  drawTopBanner(bannerMsg, captureEnabled ? "#1f7a3a" : "#b3261e");
 
   drawStatusTopLeft();
   drawBottomBar();
 
-  if(warnOn) drawWarning();
-  if(introOn) drawIntroPopup();
+  if (warnOn) drawWarning();
+  if (introOn) drawIntroPopup();
 
-  if(consentFlash > 0) consentFlash--;
+  if (consentFlash > 0) consentFlash--;
 
   positionMenuTopRight();
 }
 
-function windowResized(){
-  //resize based on the mount width
+function windowResized() {
+  //resize based on the div width
   let s = getMountSize();
   resizeCanvas(s.w, s.h);
 
@@ -258,95 +313,95 @@ function windowResized(){
   positionMenuTopRight();
 }
 
-function drawLoadingScreen(){
+function drawLoadingScreen() {
   push();
-    noStroke();
-    fill(0);
-    rect(0, 0, width, height);
+  noStroke();
+  fill(0);
+  rect(0, 0, width, height);
 
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(18);
-    text('Waiting for camera permission / loading video...', width/2, height/2 - 10);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(18);
+  text("Waiting for camera permission / loading video...", width / 2, height / 2 - 10);
 
-    fill(255, 180);
-    textSize(13);
-    text("If you don’t see a prompt, check browser camera permissions for this site.", width/2, height/2 + 18);
+  fill(255, 180);
+  textSize(13);
+  text("If you don’t see a prompt, check browser camera settings.", width / 2, height / 2 + 18);
   pop();
 }
 
 //ML INIT
-function initMLModels(){
-  if(typeof ml5 === 'undefined'){
-    console.warn('ml5 not found. Check your script tag for ml5.');
+function initMLModels() {
+  if (typeof ml5 === "undefined") {
+    console.warn("ml5 not found. Check your ml5 script tag.");
     return;
   }
 
   //FACE MODEL
-  if(typeof ml5.facemesh === 'function'){
-    faceModel = ml5.facemesh(cam, () => facesReady = true);
-    faceModel.on('predict', r => faceResults = r);
-  }else if(typeof ml5.faceMesh === 'function'){
-    faceModel = ml5.faceMesh(cam, () => facesReady = true);
-    faceModel.on('predict', r => faceResults = r);
-  }else{
-    console.log('ml5 facemesh/faceMesh not found. check ml5 script tag.');
+  if (typeof ml5.facemesh === "function") {
+    faceModel = ml5.facemesh(cam, () => (facesReady = true));
+    faceModel.on("predict", (r) => (faceResults = r));
+  } else if (typeof ml5.faceMesh === "function") {
+    faceModel = ml5.faceMesh(cam, () => (facesReady = true));
+    faceModel.on("predict", (r) => (faceResults = r));
+  } else {
+    console.log("ml5 facemesh/faceMesh not found. check ml5 script tag.");
   }
 
   //HAND MODEL
-  if(typeof ml5.handpose === 'function'){
-    handModel = ml5.handpose(cam, () => handsReady = true);
-    handModel.on('predict', r => handResults = r);
-  }else if(typeof ml5.handPose === 'function'){
-    handModel = ml5.handPose(cam, () => handsReady = true);
-    handModel.on('predict', r => handResults = r);
-  }else{
-    console.log('ml5 handpose/handPose not found. check ml5 script tag.');
+  if (typeof ml5.handpose === "function") {
+    handModel = ml5.handpose(cam, () => (handsReady = true));
+    handModel.on("predict", (r) => (handResults = r));
+  } else if (typeof ml5.handPose === "function") {
+    handModel = ml5.handPose(cam, () => (handsReady = true));
+    handModel.on("predict", (r) => (handResults = r));
+  } else {
+    console.log("ml5 handpose/handPose not found. check ml5 script tag.");
   }
 }
 
 //DRAW MODES
-function drawSingle(){
+function drawSingle() {
   drawActiveToRect(frameRect);
+
+  //blur only inside camera frame
   blurNonConsentedFacesInFrame();
+
   drawFaceBoxesML();
 }
 
-function drawGrid(){
+function drawGrid() {
   let cells = getGridCells(frameRect);
 
-  for(let i = 0; i < fxCount; i++){
+  for (let i = 0; i < fxCount; i++) {
     image(fxGfx[i], cells[i].x, cells[i].y, cells[i].w, cells[i].h);
   }
 
   push();
-    noFill();
-    stroke(255);
-    strokeWeight(3);
-    rect(cells[activeEffect].x, cells[activeEffect].y, cells[activeEffect].w, cells[activeEffect].h);
+  noFill();
+  stroke(255);
+  strokeWeight(3);
+  rect(cells[activeEffect].x, cells[activeEffect].y, cells[activeEffect].w, cells[activeEffect].h);
   pop();
 }
 
 //HIGH-QUALITY ACTIVE
-function initActiveGfx(){
-  let vw = (cam && cam.elt) ? cam.elt.videoWidth : 0;
-  let vh = (cam && cam.elt) ? cam.elt.videoHeight : 0;
+function initActiveGfx() {
+  let { vw, vh } = getVideoDims();
+  if (!vw || !vh) return;
 
-  if(!vw || !vh){
-    vw = cam ? cam.width : 0;
-    vh = cam ? cam.height : 0;
-  }
-
-  if(!vw || !vh) return;
-
-  if(!activeGfx || activeGfx.width !== vw || activeGfx.height !== vh){
+  if (!activeGfx || activeGfx.width !== vw || activeGfx.height !== vh) {
     activeGfx = createGraphics(vw, vh);
     activeGfx.pixelDensity(1);
   }
 }
 
-function drawActiveToRect(rect){
-  if(!activeGfx) return;
+function drawActiveToRect(rect) {
+  //hard fallback: if activeGfx isn’t ready, draw cam directly to the canvas
+  if (!activeGfx) {
+    drawCamDirectToCanvas(rect);
+    return;
+  }
 
   drawCamIntoGfx(activeGfx);
   applyEffectToGfx(activeGfx, activeEffect);
@@ -354,44 +409,48 @@ function drawActiveToRect(rect){
   image(activeGfx, rect.x, rect.y, rect.w, rect.h);
 }
 
-//GRID LIVE
-function bakeAllTilesOnce(){
-  for(let i = 0; i < fxCount; i++) updateTile(i);
+function drawCamDirectToCanvas(rect) {
+  //-draw cam directly when buffers aren’t ready yet
+  //-this prevents "blank canvas" while video dims settle
+  push();
+  translate(rect.x + rect.w, rect.y);
+  scale(-1, 1);
+  image(cam, 0, 0, rect.w, rect.h);
+  pop();
 }
 
-function updateGridLiveTiles(){
+//GRID LIVE
+function bakeAllTilesOnce() {
+  for (let i = 0; i < fxCount; i++) updateTile(i);
+}
+
+function updateGridLiveTiles() {
   updateTile(activeEffect);
 
-  if(frameCount % 2 !== 0) return;
+  if (frameCount % 2 !== 0) return;
 
   updateTile(previewCursor);
   previewCursor = (previewCursor + 1) % fxCount;
 }
 
-function updateTile(id){
+function updateTile(id) {
   let g = fxGfx[id];
   drawCamIntoGfx(g);
   applyEffectToGfx(g, id);
 }
 
 //CAM DRAW
-function drawCamIntoGfx(g){
-  let vw = (cam && cam.elt) ? cam.elt.videoWidth : 0;
-  let vh = (cam && cam.elt) ? cam.elt.videoHeight : 0;
-
-  if(!vw || !vh){
-    vw = cam.width || 1280;
-    vh = cam.height || 720;
-  }
+function drawCamIntoGfx(g) {
+  let { vw, vh } = getVideoDims();
 
   let vAspect = vw / vh;
   let gAspect = g.width / g.height;
 
   let dw, dh;
-  if(gAspect > vAspect){
+  if (gAspect > vAspect) {
     dw = g.width;
     dh = dw / vAspect;
-  }else{
+  } else {
     dh = g.height;
     dw = dh * vAspect;
   }
@@ -400,30 +459,30 @@ function drawCamIntoGfx(g){
   let vy = (g.height - dh) / 2;
 
   g.push();
-    g.clear();
-    g.translate(vx + dw, vy);
-    g.scale(-1, 1);
-    g.image(cam, 0, 0, dw, dh);
+  g.clear();
+  g.translate(vx + dw, vy);
+  g.scale(-1, 1);
+  g.image(cam, 0, 0, dw, dh);
   g.pop();
 }
 
 //EFFECTS
-function applyEffectToGfx(g, id){
-  if(id === 0) return;
+function applyEffectToGfx(g, id) {
+  if (id === 0) return;
 
   g.loadPixels();
 
-  if(id === 7){
+  if (id === 7) {
     let block = 10;
-    for(let y = 0; y < g.height; y += block){
-      for(let x = 0; x < g.width; x += block){
+    for (let y = 0; y < g.height; y += block) {
+      for (let x = 0; x < g.width; x += block) {
         let idx = 4 * (y * g.width + x);
         let r = g.pixels[idx];
         let gg = g.pixels[idx + 1];
         let b = g.pixels[idx + 2];
 
-        for(let yy = y; yy < y + block && yy < g.height; yy++){
-          for(let xx = x; xx < x + block && xx < g.width; xx++){
+        for (let yy = y; yy < y + block && yy < g.height; yy++) {
+          for (let xx = x; xx < x + block && xx < g.width; xx++) {
             let ii = 4 * (yy * g.width + xx);
             g.pixels[ii] = r;
             g.pixels[ii + 1] = gg;
@@ -438,42 +497,56 @@ function applyEffectToGfx(g, id){
 
   let step = max(1, int(pixelStep));
 
-  for(let y = 0; y < g.height; y += step){
-    for(let x = 0; x < g.width; x += step){
+  for (let y = 0; y < g.height; y += step) {
+    for (let x = 0; x < g.width; x += step) {
       let i = 4 * (y * g.width + x);
 
       let r = g.pixels[i];
       let gg = g.pixels[i + 1];
       let b = g.pixels[i + 2];
 
-      let nr = r, ng = gg, nb = b;
+      let nr = r,
+        ng = gg,
+        nb = b;
 
-      if(id === 1){
-        let lum = 0.2126*r + 0.7152*gg + 0.0722*b;
-        nr = lum; ng = lum; nb = lum;
-      }else if(id === 2){
-        nr = 255 - r; ng = 255 - gg; nb = 255 - b;
-      }else if(id === 3){
-        let lum = 0.2126*r + 0.7152*gg + 0.0722*b;
-        let v = (lum > 120) ? 255 : 0;
-        nr = v; ng = v; nb = v;
-      }else if(id === 4){
+      if (id === 1) {
+        let lum = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+        nr = lum;
+        ng = lum;
+        nb = lum;
+      } else if (id === 2) {
+        nr = 255 - r;
+        ng = 255 - gg;
+        nb = 255 - b;
+      } else if (id === 3) {
+        let lum = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+        let v = lum > 120 ? 255 : 0;
+        nr = v;
+        ng = v;
+        nb = v;
+      } else if (id === 4) {
         let levels = 4;
-        nr = floor(r/255*(levels-1))*(255/(levels-1));
-        ng = floor(gg/255*(levels-1))*(255/(levels-1));
-        nb = floor(b/255*(levels-1))*(255/(levels-1));
-      }else if(id === 5){
-        let lum = 0.2126*r + 0.7152*gg + 0.0722*b;
-        let v = (lum > 128) ? 220 : 35;
-        nr = v; ng = v; nb = v;
-      }else if(id === 6){
-        nr = r*0.8; ng = gg*0.9; nb = min(255, b*1.25);
-      }else if(id === 8){
-        nr = r; ng = 0; nb = 0;
+        nr = floor((r / 255) * (levels - 1)) * (255 / (levels - 1));
+        ng = floor((gg / 255) * (levels - 1)) * (255 / (levels - 1));
+        nb = floor((b / 255) * (levels - 1)) * (255 / (levels - 1));
+      } else if (id === 5) {
+        let lum = 0.2126 * r + 0.7152 * gg + 0.0722 * b;
+        let v = lum > 128 ? 220 : 35;
+        nr = v;
+        ng = v;
+        nb = v;
+      } else if (id === 6) {
+        nr = r * 0.8;
+        ng = gg * 0.9;
+        nb = min(255, b * 1.25);
+      } else if (id === 8) {
+        nr = r;
+        ng = 0;
+        nb = 0;
       }
 
-      for(let yy = y; yy < y + step && yy < g.height; yy++){
-        for(let xx = x; xx < x + step && xx < g.width; xx++){
+      for (let yy = y; yy < y + step && yy < g.height; yy++) {
+        for (let xx = x; xx < x + step && xx < g.width; xx++) {
           let ii = 4 * (yy * g.width + xx);
           g.pixels[ii] = nr;
           g.pixels[ii + 1] = ng;
@@ -486,71 +559,79 @@ function applyEffectToGfx(g, id){
   g.updatePixels();
 }
 
-//TRACKING
-function updateTrackedFaces(){
-  for(let f of trackedFaces) f.lastSeen++;
+//ML -> TRACKED FACES
+function updateTrackedFaces() {
+  for (let f of trackedFaces) f.lastSeen++;
 
-  if(!facesReady) return;
-  if(!activeGfx) return;
+  if (!facesReady) return;
+  if (!activeGfx) return;
 
   let dets = [];
 
-  for(let pred of faceResults){
+  for (let pred of faceResults) {
     let bb = getFaceBBoxFromPrediction(pred);
-    if(!bb) continue;
+    if (!bb) continue;
 
     let mapped = mapCamBBoxToFrame(bb);
-    if(!mapped) continue;
+    if (!mapped) continue;
 
     dets.push(mapped);
   }
 
-  for(let d of dets){
+  for (let d of dets) {
     let best = null;
     let bestDist = 999999;
 
-    for(let f of trackedFaces){
+    for (let f of trackedFaces) {
       let dd = dist(d.cx, d.cy, f.cx, f.cy);
-      if(dd < bestDist){
+      if (dd < bestDist) {
         bestDist = dd;
         best = f;
       }
     }
 
-    if(best && bestDist < matchDist){
-      best.x = d.x; best.y = d.y; best.w = d.w; best.h = d.h;
-      best.cx = d.cx; best.cy = d.cy;
+    if (best && bestDist < matchDist) {
+      best.x = d.x;
+      best.y = d.y;
+      best.w = d.w;
+      best.h = d.h;
+      best.cx = d.cx;
+      best.cy = d.cy;
       best.lastSeen = 0;
-    }else{
+    } else {
       trackedFaces.push({
         id: nextFaceId++,
-        x: d.x, y: d.y, w: d.w, h: d.h,
-        cx: d.cx, cy: d.cy,
+        x: d.x,
+        y: d.y,
+        w: d.w,
+        h: d.h,
+        cx: d.cx,
+        cy: d.cy,
         consented: false,
-        lastSeen: 0
+        lastSeen: 0,
       });
     }
   }
 
-  trackedFaces = trackedFaces.filter(f => f.lastSeen <= faceTTL);
+  trackedFaces = trackedFaces.filter((f) => f.lastSeen <= faceTTL);
 }
 
-function getActiveFaces(){
-  return trackedFaces.filter(f => f.lastSeen < 3);
+function getActiveFaces() {
+  return trackedFaces.filter((f) => f.lastSeen < 3);
 }
 
-function isAllActiveFacesConsented(){
+function isAllActiveFacesConsented() {
   let active = getActiveFaces();
-  if(active.length === 0) return false;
+  if (active.length === 0) return false;
 
-  for(let f of active){
-    if(!f.consented) return false;
+  for (let f of active) {
+    if (!f.consented) return false;
   }
   return true;
 }
 
-function getFaceBBoxFromPrediction(pred){
-  if(pred.boundingBox && pred.boundingBox.topLeft && pred.boundingBox.bottomRight){
+function getFaceBBoxFromPrediction(pred) {
+  if (pred.boundingBox && pred.boundingBox.topLeft && pred.boundingBox.bottomRight) {
     let tl = pred.boundingBox.topLeft[0];
     let br = pred.boundingBox.bottomRight[0];
 
@@ -559,26 +640,28 @@ function getFaceBBoxFromPrediction(pred){
     let w = br[0] - tl[0];
     let h = br[1] - tl[1];
 
-    return { x:x, y:y, w:w, h:h };
+    return { x: x, y: y, w: w, h: h };
   }
 
-  if(pred.scaledMesh && pred.scaledMesh.length > 0){
-    let minX = 999999, minY = 999999, maxX = -999999, maxY = -999999;
-    for(let pt of pred.scaledMesh){
-      minX = min(minX, pt[0]);
-      minY = min(minY, pt[1]);
-      maxX = max(maxX, pt[0]);
-      maxY = max(maxY, pt[1]);
+  if (pred.scaledMesh && pred.scaledMesh.length > 0) {
+    let minX = 999999,
+      minY = 999999,
+      maxX = -999999,
+      maxY = -999999;
+    for (let pnt of pred.scaledMesh) {
+      minX = min(minX, pnt[0]);
+      minY = min(minY, pnt[1]);
+      maxX = max(maxX, pnt[0]);
+      maxY = max(maxY, pnt[1]);
     }
-    return { x:minX, y:minY, w:maxX-minX, h:maxY-minY };
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
   }
 
   return null;
 }
 
-function mapCamBBoxToFrame(bb){
-  let vw = cam.elt.videoWidth || cam.width || 1280;
-  let vh = cam.elt.videoHeight || cam.height || 720;
+function mapCamBBoxToFrame(bb) {
+  let { vw, vh } = getVideoDims();
 
   let gW = activeGfx.width;
   let gH = activeGfx.height;
@@ -587,10 +670,10 @@ function mapCamBBoxToFrame(bb){
   let gAspect = gW / gH;
 
   let dw, dh;
-  if(gAspect > vAspect){
+  if (gAspect > vAspect) {
     dw = gW;
     dh = dw / vAspect;
-  }else{
+  } else {
     dh = gH;
     dw = dh * vAspect;
   }
@@ -606,27 +689,26 @@ function mapCamBBoxToFrame(bb){
   let gw = bb.w * sx;
   let gh = bb.h * sy;
 
-  //mirror x
-  let mx = (vx + dw) - (gx + gw);
+  let mx = vx + dw - (gx + gw);
 
   let fx = frameRect.x + (mx / gW) * frameRect.w;
   let fy = frameRect.y + (gy / gH) * frameRect.h;
   let fw = (gw / gW) * frameRect.w;
   let fh = (gh / gH) * frameRect.h;
 
-  return { x:fx, y:fy, w:fw, h:fh, cx:fx + fw/2, cy:fy + fh/2 };
+  return { x: fx, y: fy, w: fw, h: fh, cx: fx + fw / 2, cy: fy + fh / 2 };
 }
 
 //OK GESTURE -> CONSENT
-function applyOkGestureConsent(){
-  if(!handsReady){
+function applyOkGestureConsent() {
+  if (!handsReady) {
     okLive = false;
     okHoldMs = 0;
     okRemainingS = okHoldMsTarget / 1000;
     return;
   }
 
-  if(okCooldown > 0){
+  if (okCooldown > 0) {
     okCooldown--;
     okLive = false;
     okHoldMs = 0;
@@ -635,7 +717,7 @@ function applyOkGestureConsent(){
   }
 
   let active = getActiveFaces();
-  if(active.length === 0){
+  if (active.length === 0) {
     okLive = false;
     okHoldMs = 0;
     okRemainingS = okHoldMsTarget / 1000;
@@ -645,35 +727,35 @@ function applyOkGestureConsent(){
   let okThisFrame = false;
   let bestHandCenter = null;
 
-  for(let h of handResults){
-    if(!h.landmarks || h.landmarks.length < 21) continue;
+  for (let h of handResults) {
+    if (!h.landmarks || h.landmarks.length < 21) continue;
 
     let hb = getHandBBox(h.landmarks);
     let diag = dist(hb.minX, hb.minY, hb.maxX, hb.maxY);
-    if(diag < minHandSize) continue;
+    if (diag < minHandSize) continue;
 
-    if(isOkGesture(h.landmarks)){
+    if (isOkGesture(h.landmarks)) {
       okThisFrame = true;
       bestHandCenter = getHandCenter(h.landmarks);
       break;
     }
   }
 
-  if(okThisFrame){
+  if (okThisFrame) {
     okHoldMs += deltaTime;
-  }else{
+  } else {
     okHoldMs = 0;
   }
 
   okLive = okThisFrame;
   okRemainingS = max(0, (okHoldMsTarget - okHoldMs) / 1000);
 
-  if(okHoldMs >= okHoldMsTarget && bestHandCenter){
+  if (okHoldMs >= okHoldMsTarget && bestHandCenter) {
     let nearest = getNearestFace(bestHandCenter.x, bestHandCenter.y);
 
-    if(nearest && !nearest.consented){
+    if (nearest && !nearest.consented) {
       nearest.consented = true;
-      statusMsg = 'Consent granted';
+      statusMsg = "Consent granted";
       consentFlash = 45;
     }
 
@@ -684,23 +766,27 @@ function applyOkGestureConsent(){
   }
 }
 
-function getHandBBox(lm){
-  let minX = 999999, minY = 999999, maxX = -999999, maxY = -999999;
+function getHandBBox(lm) {
+  let minX = 999999,
+    minY = 999999,
+    maxX = -999999,
+    maxY = -999999;
 
-  for(let pt of lm){
-    minX = min(minX, pt[0]);
-    minY = min(minY, pt[1]);
-    maxX = max(maxX, pt[0]);
-    maxY = max(maxY, pt[1]);
+  for (let pnt of lm) {
+    minX = min(minX, pnt[0]);
+    minY = min(minY, pnt[1]);
+    maxX = max(maxX, pnt[0]);
+    maxY = max(maxY, pnt[1]);
   }
 
   return { minX, minY, maxX, maxY };
 }
 
-function getHandCenter(lm){
+function getHandCenter(lm) {
   let pts = [0, 5, 9, 13, 17];
-  let sx = 0, sy = 0;
-  for(let idx of pts){
+  let sx = 0,
+    sy = 0;
+  for (let idx of pts) {
     sx += lm[idx][0];
     sy += lm[idx][1];
   }
@@ -710,9 +796,8 @@ function getHandCenter(lm){
   return mapCamPointToFrame(sx, sy);
 }
 
-function mapCamPointToFrame(px, py){
-  let vw = cam.elt.videoWidth || cam.width || 1280;
-  let vh = cam.elt.videoHeight || cam.height || 720;
+function mapCamPointToFrame(px, py) {
+  let { vw, vh } = getVideoDims();
 
   let gW = activeGfx ? activeGfx.width : vw;
   let gH = activeGfx ? activeGfx.height : vh;
@@ -721,10 +806,10 @@ function mapCamPointToFrame(px, py){
   let gAspect = gW / gH;
 
   let dw, dh;
-  if(gAspect > vAspect){
+  if (gAspect > vAspect) {
     dw = gW;
     dh = dw / vAspect;
-  }else{
+  } else {
     dh = gH;
     dw = dh * vAspect;
   }
@@ -738,25 +823,24 @@ function mapCamPointToFrame(px, py){
   let gx = vx + px * sx;
   let gy = vy + py * sy;
 
-  //mirror x
-  let mx = (vx + dw) - gx;
+  let mx = vx + dw - gx;
 
   let fx = frameRect.x + (mx / gW) * frameRect.w;
   let fy = frameRect.y + (gy / gH) * frameRect.h;
 
-  return { x:fx, y:fy };
+  return { x: fx, y: fy };
 }
 
-function getNearestFace(x, y){
+function getNearestFace(x, y) {
   let active = getActiveFaces();
-  if(active.length === 0) return null;
+  if (active.length === 0) return null;
 
   let best = null;
   let bestDist = 999999;
 
-  for(let f of active){
+  for (let f of active) {
     let d = dist(x, y, f.cx, f.cy);
-    if(d < bestDist){
+    if (d < bestDist) {
       bestDist = d;
       best = f;
     }
@@ -764,7 +848,7 @@ function getNearestFace(x, y){
   return best;
 }
 
-function isOkGesture(lm){
+function isOkGesture(lm) {
   let wrist = lm[0];
 
   let thumbTip = lm[4];
@@ -782,9 +866,12 @@ function isOkGesture(lm){
   let idxPipD = dist(indexPip[0], indexPip[1], wrist[0], wrist[1]);
   let indexCurled = idxTipD < idxPipD + 6;
 
-  let midTip = lm[12], midPip = lm[10];
-  let ringTip = lm[16], ringPip = lm[14];
-  let pinkyTip = lm[20], pinkyPip = lm[18];
+  let midTip = lm[12],
+    midPip = lm[10];
+  let ringTip = lm[16],
+    ringPip = lm[14];
+  let pinkyTip = lm[20],
+    pinkyPip = lm[18];
 
   let midOpen =
     dist(midTip[0], midTip[1], wrist[0], wrist[1]) >
@@ -798,26 +885,23 @@ function isOkGesture(lm){
     dist(pinkyTip[0], pinkyTip[1], wrist[0], wrist[1]) >
     dist(pinkyPip[0], pinkyPip[1], wrist[0], wrist[1]) + openMargin;
 
-  let openCount = (midOpen?1:0) + (ringOpen?1:0) + (pinkyOpen?1:0);
+  let openCount = (midOpen ? 1 : 0) + (ringOpen ? 1 : 0) + (pinkyOpen ? 1 : 0);
 
   return pinchOk && indexCurled && openCount >= 2;
 }
 
 //BLUR (ONLY INSIDE FRAME)
-function blurNonConsentedFacesInFrame(){
-  if(!blurSlider) return;
+function blurNonConsentedFacesInFrame() {
+  if (!blurSlider) return;
 
   let blockSize = blurSlider.value();
   let active = getActiveFaces();
 
-  for(let f of active){
-    if(f.consented) continue;
+  for (let f of active) {
+    if (f.consented) continue;
 
-    let r = intersectRect(
-      { x:f.x, y:f.y, w:f.w, h:f.h },
-      frameRect
-    );
-    if(!r) continue;
+    let r = intersectRect({ x: f.x, y: f.y, w: f.w, h: f.h }, frameRect);
+    if (!r) continue;
 
     let x1 = int(r.x);
     let y1 = int(r.y);
@@ -833,11 +917,11 @@ function blurNonConsentedFacesInFrame(){
     boxImg.loadPixels();
 
     noStroke();
-    for(let y = 0; y < h1; y += blockSize){
-      for(let x = 0; x < w1; x += blockSize){
+    for (let y = 0; y < h1; y += blockSize) {
+      for (let x = 0; x < w1; x += blockSize) {
         let idx = 4 * (y * w1 + x);
-        fill(boxImg.pixels[idx], boxImg.pixels[idx+1], boxImg.pixels[idx+2]);
-        rect(x1 + x, y1 + y, min(blockSize, w1-x), min(blockSize, h1-y));
+        fill(boxImg.pixels[idx], boxImg.pixels[idx + 1], boxImg.pixels[idx + 2]);
+        rect(x1 + x, y1 + y, min(blockSize, w1 - x), min(blockSize, h1 - y));
       }
     }
 
@@ -846,7 +930,7 @@ function blurNonConsentedFacesInFrame(){
   }
 }
 
-function intersectRect(a, b){
+function intersectRect(a, b) {
   let x = max(a.x, b.x);
   let y = max(a.y, b.y);
   let r = min(a.x + a.w, b.x + b.w);
@@ -855,72 +939,72 @@ function intersectRect(a, b){
   let w = r - x;
   let h = t - y;
 
-  if(w <= 0 || h <= 0) return null;
-  return { x:x, y:y, w:w, h:h };
+  if (w <= 0 || h <= 0) return null;
+  return { x: x, y: y, w: w, h: h };
 }
 
 //FACE BOX UI
-function drawFaceBoxesML(){
+function drawFaceBoxesML() {
   let active = getActiveFaces();
 
   push();
-    textAlign(LEFT, CENTER);
-    textSize(14);
+  textAlign(LEFT, CENTER);
+  textSize(14);
 
-    for(let f of active){
-      let r = intersectRect({x:f.x,y:f.y,w:f.w,h:f.h}, frameRect);
-      if(!r) continue;
+  for (let f of active) {
+    let r = intersectRect({ x: f.x, y: f.y, w: f.w, h: f.h }, frameRect);
+    if (!r) continue;
 
-      stroke(255, f.consented ? 255 : 170);
-      strokeWeight(f.consented ? 3 : 2);
-      noFill();
-      rect(f.x, f.y, f.w, f.h);
+    stroke(255, f.consented ? 255 : 170);
+    strokeWeight(f.consented ? 3 : 2);
+    noFill();
+    rect(f.x, f.y, f.w, f.h);
 
-      let label = f.consented ? 'CONSENTED' : 'NOT CONSENTED';
+    let label = f.consented ? "CONSENTED" : "NOT CONSENTED";
 
-      noStroke();
-      fill(0, 0, 0, 150);
-      let chipW = min(f.w, textWidth(label) + 18);
-      rect(f.x, f.y - 34, chipW, 26, 10);
+    noStroke();
+    fill(0, 0, 0, 150);
+    let chipW = min(f.w, textWidth(label) + 18);
+    rect(f.x, f.y - 34, chipW, 26, 10);
 
-      fill(255);
-      text(label, f.x + 10, f.y - 21);
-    }
+    fill(255);
+    text(label, f.x + 10, f.y - 21);
+  }
   pop();
 }
 
 //LAYOUT HELPERS
-function getFrameRectMax(){
+function getFrameRectMax() {
   let topY = bannerH + topPad + statusBoxH + 12;
   let bottomY = height - captureZoneH - topPad;
 
   let availH = max(10, bottomY - topY);
-  let availW = max(10, width - sidePad*2);
+  let availW = max(10, width - sidePad * 2);
 
   let w = availW;
   let h = w / targetAspect;
 
-  if(h > availH){
+  if (h > availH) {
     h = availH;
     w = h * targetAspect;
   }
 
-  return { x:(width-w)/2, y:topY + (availH-h)/2, w:w, h:h };
+  return { x: (width - w) / 2, y: topY + (availH - h) / 2, w: w, h: h };
 }
 
-function getGridCells(rect){
+function getGridCells(rect) {
   let gap = 10;
-  let cellW = (rect.w - gap*2) / 3;
-  let cellH = (rect.h - gap*2) / 3;
+  let cellW = (rect.w - gap * 2) / 3;
+  let cellH = (rect.h - gap * 2) / 3;
 
   let cells = [];
-  for(let r = 0; r < 3; r++){
-    for(let c = 0; c < 3; c++){
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
       cells.push({
-        x: rect.x + c*(cellW+gap),
-        y: rect.y + r*(cellH+gap),
+        x: rect.x + c * (cellW + gap),
+        y: rect.y + r * (cellH + gap),
         w: cellW,
-        h: cellH
+        h: cellH,
       });
     }
   }
@@ -928,145 +1012,149 @@ function getGridCells(rect){
 }
 
 //UI DRAW
-function drawTopBanner(msg, col){
+function drawTopBanner(msg, col) {
   push();
-    noStroke();
-    fill(col);
-    rect(0, 0, width, bannerH);
+  noStroke();
+  fill(col);
+  rect(0, 0, width, bannerH);
 
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(16);
-    text(msg, width/2, bannerH/2);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(16);
+  text(msg, width / 2, bannerH / 2);
   pop();
 }
 
-function drawStatusTopLeft(){
+function drawStatusTopLeft() {
   let active = getActiveFaces();
 
-  let lockReason = '';
-  if(active.length === 0) lockReason = 'No face detected yet.';
-  else if(!isAllActiveFacesConsented()) lockReason = 'At least one face has not consented.';
-  else lockReason = 'All detected faces have consented.';
+  let lockReason = "";
+  if (active.length === 0) lockReason = "No face detected yet.";
+  else if (!isAllActiveFacesConsented()) lockReason = "At least one face has not consented.";
+  else lockReason = "All detected faces have consented.";
 
-  let extra = '';
-  if(consentFlash > 0) extra = '  |  ' + statusMsg;
+  let extra = "";
+  if (consentFlash > 0) extra = "  |  " + statusMsg;
 
   push();
-    noStroke();
-    fill(0, 0, 0, 160);
-    rect(sidePad, bannerH + topPad, statusBoxW, statusBoxH, 14);
+  noStroke();
+  fill(0, 0, 0, 160);
+  rect(sidePad, bannerH + topPad, statusBoxW, statusBoxH, 14);
 
-    fill(255);
-    textAlign(LEFT, CENTER);
-    textSize(15);
-    text('Status: ' + lockReason + extra, sidePad + 14, bannerH + topPad + statusBoxH/2);
+  fill(255);
+  textAlign(LEFT, CENTER);
+  textSize(15);
+  text("Status: " + lockReason + extra, sidePad + 14, bannerH + topPad + statusBoxH / 2);
   pop();
 }
 
-function drawBottomBar(){
+function drawBottomBar() {
   push();
-    noStroke();
-    fill(0);
-    rect(0, height - captureZoneH, width, captureZoneH);
+  noStroke();
+  fill(0);
+  rect(0, height - captureZoneH, width, captureZoneH);
 
-    stroke(255, 70);
-    strokeWeight(2);
-    line(0, height - captureZoneH, width, height - captureZoneH);
+  stroke(255, 70);
+  strokeWeight(2);
+  line(0, height - captureZoneH, width, height - captureZoneH);
 
-    //shutter
-    shutX = width/2;
-    shutY = height - captureZoneH/2;
+  //shutter
+  shutX = width / 2;
+  shutY = height - captureZoneH / 2;
 
-    noFill();
-    stroke(255, captureEnabled ? 220 : 120);
-    strokeWeight(6);
-    circle(shutX, shutY, shutR*2);
+  noFill();
+  stroke(255, captureEnabled ? 220 : 120);
+  strokeWeight(6);
+  circle(shutX, shutY, shutR * 2);
 
-    noStroke();
-    fill(255, captureEnabled ? 235 : 90);
-    circle(shutX, shutY, shutInnerR*2);
+  noStroke();
+  fill(255, captureEnabled ? 235 : 90);
+  circle(shutX, shutY, shutInnerR * 2);
 
-    fill(0, 70);
-    circle(shutX, shutY, 6);
+  fill(0, 70);
+  circle(shutX, shutY, 6);
 
-    //effects button
-    fxBtnX = width - sidePad - 50;
-    fxBtnY = height - captureZoneH/2;
+  //effects button
+  fxBtnX = width - sidePad - 50;
+  fxBtnY = height - captureZoneH / 2;
 
-    noStroke();
-    fill(255, 24);
-    circle(fxBtnX, fxBtnY, fxBtnR*2);
+  noStroke();
+  fill(255, 24);
+  circle(fxBtnX, fxBtnY, fxBtnR * 2);
 
-    fill(255, 200);
-    let d = 4;
-    let s = 9;
-    for(let rr = -1; rr <= 1; rr++){
-      for(let cc = -1; cc <= 1; cc++){
-        circle(fxBtnX + cc*s, fxBtnY + rr*s, d);
-      }
+  fill(255, 200);
+  let d = 4;
+  let s = 9;
+  for (let rr = -1; rr <= 1; rr++) {
+    for (let cc = -1; cc <= 1; cc++) {
+      circle(fxBtnX + cc * s, fxBtnY + rr * s, d);
     }
+  }
   pop();
 }
 
 //INTRO POPUP
-function drawIntroPopup(){
+function drawIntroPopup() {
   push();
-    noStroke();
-    fill(0, 0, 0, 170);
-    rect(0, 0, width, height);
+  noStroke();
+  fill(0, 0, 0, 170);
+  rect(0, 0, width, height);
 
-    let w = min(620, width - 40);
-    let h = 250;
-    let x = (width - w) / 2;
-    let y = (height - h) / 2;
+  let w = min(620, width - 40);
+  let h = 250;
+  let x = (width - w) / 2;
+  let y = (height - h) / 2;
 
-    fill(255, 255, 255, 20);
-    rect(x, y, w, h, 20);
+  fill(255, 255, 255, 20);
+  rect(x, y, w, h, 20);
 
-    fill(255);
-    textAlign(LEFT, TOP);
-    textSize(28);
-    text('Welcome to the Consent Camera!', x + 24, y + 22);
+  fill(255);
+  textAlign(LEFT, TOP);
+  textSize(28);
+  text("Welcome to the Consent Camera!", x + 24, y + 22);
 
-    textSize(16);
-    fill(255, 235);
-    text('How it works', x + 24, y + 76);
+  textSize(16);
+  fill(255, 235);
+  text("How it works", x + 24, y + 76);
 
-    textSize(15);
-    fill(255, 215);
-    text(
-      '• Faces are blurred by default.\n' +
-      '• Each person must HOLD an OK hand sign for 3 seconds to consent.\n' +
-      '• When everyone is consented, you can take a photo and open filters.\n\n' +
-      'Click OK to begin.',
-      x + 24, y + 108
-    );
+  textSize(15);
+  fill(255, 215);
+  text(
+    "• Faces are blurred by default.\n" +
+      "• Each person must HOLD an OK hand sign for 3 seconds to consent.\n" +
+      "• When everyone is consented, you can take a photo and open filters.\n\n" +
+      "Click OK to begin.",
+    x + 24,
+    y + 108
+  );
 
-    //button
-    let bx = x + w - 150;
-    let by = y + h - 62;
-    let bw = 120;
-    let bh = 42;
+  //button
+  let bx = x + w - 150;
+  let by = y + h - 62;
+  let bw = 120;
+  let bh = 42;
 
-    fill(255, 255, 255, 40);
-    rect(bx, by, bw, bh, 16);
+  fill(255, 255, 255, 40);
+  rect(bx, by, bw, bh, 16);
 
-    fill(255);
-    textAlign(CENTER, CENTER);
-    textSize(16);
-    text('OK', bx + bw/2, by + bh/2);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(16);
+  text("OK", bx + bw / 2, by + bh / 2);
 
-    introBtn = { x:bx, y:by, w:bw, h:bh };
-  pop();
+  introBtn = { x: bx, y: by, w: bw, h: bh };
 }
 
 //INPUT
-function mousePressed(){
-  if(introOn){
-    if(introBtn &&
-       mouseX >= introBtn.x && mouseX <= introBtn.x + introBtn.w &&
-       mouseY >= introBtn.y && mouseY <= introBtn.y + introBtn.h){
+function mousePressed() {
+  if (introOn) {
+    if (
+      introBtn &&
+      mouseX >= introBtn.x &&
+      mouseX <= introBtn.x + introBtn.w &&
+      mouseY >= introBtn.y &&
+      mouseY <= introBtn.y + introBtn.h
+    ) {
       introOn = false;
       warnOn = false;
       warnTimer = 0;
@@ -1074,40 +1162,40 @@ function mousePressed(){
     return;
   }
 
-  if(gridOn){
-    if(selectGridCell(mouseX, mouseY)) return;
+  if (gridOn) {
+    if (selectGridCell(mouseX, mouseY)) return;
   }
 
-  if(overFxBtn(mouseX, mouseY)){
-    if(!isAllActiveFacesConsented()){
-      triggerWarning('filters');
+  if (overFxBtn(mouseX, mouseY)) {
+    if (!isAllActiveFacesConsented()) {
+      triggerWarning("filters");
       return;
     }
     gridOn = !gridOn;
     return;
   }
 
-  if(!gridOn && overShutter(mouseX, mouseY)){
+  if (!gridOn && overShutter(mouseX, mouseY)) {
     tryCapture();
   }
 }
 
-function overShutter(mx, my){
+function overShutter(mx, my) {
   return dist(mx, my, shutX, shutY) <= shutR;
 }
 
-function overFxBtn(mx, my){
+function overFxBtn(mx, my) {
   return dist(mx, my, fxBtnX, fxBtnY) <= fxBtnR;
 }
 
-function selectGridCell(mx, my){
-  if(!gridOn) return false;
+function selectGridCell(mx, my) {
+  if (!gridOn) return false;
 
   let cells = getGridCells(frameRect);
 
-  for(let i = 0; i < cells.length; i++){
+  for (let i = 0; i < cells.length; i++) {
     let c = cells[i];
-    if(mx >= c.x && mx <= c.x + c.w && my >= c.y && my <= c.y + c.h){
+    if (mx >= c.x && mx <= c.x + c.w && my >= c.y && my <= c.y + c.h) {
       activeEffect = i;
       gridOn = false;
       return true;
@@ -1117,18 +1205,18 @@ function selectGridCell(mx, my){
 }
 
 //CAPTURE
-function tryCapture(){
-  if(!captureEnabled){
-    triggerWarning('capture');
+function tryCapture() {
+  if (!captureEnabled) {
+    triggerWarning("capture");
     return;
   }
 
-  statusMsg = 'Captured at ' + new Date().toLocaleTimeString();
+  statusMsg = "Captured at " + new Date().toLocaleTimeString();
   downloadCapture();
 }
 
-function downloadCapture(){
-  if(!activeGfx) return;
+function downloadCapture() {
+  if (!activeGfx) return;
 
   drawCamIntoGfx(activeGfx);
   applyEffectToGfx(activeGfx, activeEffect);
@@ -1136,166 +1224,174 @@ function downloadCapture(){
   let shot = activeGfx.get();
   let now = new Date();
   let stamp =
-    now.getFullYear() + '-' +
-    nf(now.getMonth()+1,2) + '-' +
-    nf(now.getDate(),2) + '_' +
-    nf(now.getHours(),2) + '-' +
-    nf(now.getMinutes(),2) + '-' +
-    nf(now.getSeconds(),2);
+    now.getFullYear() +
+    "-" +
+    nf(now.getMonth() + 1, 2) +
+    "-" +
+    nf(now.getDate(), 2) +
+    "_" +
+    nf(now.getHours(), 2) +
+    "-" +
+    nf(now.getMinutes(), 2) +
+    "-" +
+    nf(now.getSeconds(), 2);
 
-  save(shot, 'consent_camera_' + stamp + '.png');
+  save(shot, "consent_camera_" + stamp + ".png");
 }
 
 //WARNING
-function triggerWarning(type = 'capture'){
+function triggerWarning(type = "capture") {
   warnType = type;
   warnOn = true;
   warnTimer = 0;
-  statusMsg = '';
+  statusMsg = "";
 }
 
-function drawWarning(){
+function drawWarning() {
   warnLayer.clear();
 
   let flash = frameCount % 10 < 5;
 
   warnLayer.push();
-    warnLayer.noStroke();
-    warnLayer.fill(0, 0, 0, 140);
-    warnLayer.rect(0, 0, width, height);
+  warnLayer.noStroke();
+  warnLayer.fill(0, 0, 0, 140);
+  warnLayer.rect(0, 0, width, height);
 
-    if(flash){
-      warnLayer.stroke(255, 60, 60);
-      warnLayer.strokeWeight(18);
-      warnLayer.noFill();
-      warnLayer.rect(10, 10, width - 20, height - 20);
-    }
+  if (flash) {
+    warnLayer.stroke(255, 60, 60);
+    warnLayer.strokeWeight(18);
+    warnLayer.noFill();
+    warnLayer.rect(10, 10, width - 20, height - 20);
+  }
 
-    warnLayer.noStroke();
-    warnLayer.fill(255);
-    warnLayer.textAlign(CENTER, CENTER);
-    warnLayer.textSize(44);
-    warnLayer.text('STOP', width/2, height/2 - 60);
+  warnLayer.noStroke();
+  warnLayer.fill(255);
+  warnLayer.textAlign(CENTER, CENTER);
+  warnLayer.textSize(44);
+  warnLayer.text("STOP", width / 2, height / 2 - 60);
 
-    warnLayer.textSize(18);
+  warnLayer.textSize(18);
 
-    if(warnType === 'filters'){
-      warnLayer.text('Filters are locked until everyone consents.', width/2, height/2 - 10);
-      warnLayer.text('Hold an OK sign for 3 seconds (nearest face).', width/2, height/2 + 22);
-    }else{
-      warnLayer.text('Not everyone in frame has consented.', width/2, height/2 - 10);
-      warnLayer.text('Hold an OK sign for 3 seconds to consent.', width/2, height/2 + 22);
-    }
+  if (warnType === "filters") {
+    warnLayer.text("Filters are locked until everyone consents.", width / 2, height / 2 - 10);
+    warnLayer.text("Hold an OK sign for 3 seconds (nearest face).", width / 2, height / 2 + 22);
+  } else {
+    warnLayer.text("Not everyone in frame has consented.", width / 2, height / 2 - 10);
+    warnLayer.text("Hold an OK sign for 3 seconds to consent.", width / 2, height / 2 + 22);
+  }
   warnLayer.pop();
 
   image(warnLayer, 0, 0);
 
   warnTimer++;
-  if(warnTimer > warnDur){
+  if (warnTimer > warnDur) {
     warnOn = false;
     warnTimer = 0;
   }
 }
 
 //DOM MENU
-function buildMenu(){
-  menu = createDiv('');
-  menu.parent(mountEl);
+function buildMenu() {
+  //menu should live inside the mount div
+  //IMPORTANT: p5 DOM elements are absolutely-positioned in the page unless parented
+  menu = createDiv("");
+  if (mountEl) menu.parent(mountEl);
 
-  menu.style('width', '420px');
-  menu.style('border-radius', '18px');
-  menu.style('background', 'rgba(0,0,0,0.46)');
-  menu.style('backdrop-filter', 'blur(12px)');
-  menu.style('-webkit-backdrop-filter', 'blur(12px)');
-  menu.style('box-shadow', '0 12px 34px rgba(0,0,0,0.28)');
-  menu.style('font-family', 'system-ui');
-  menu.style('color', 'rgba(255,255,255,0.92)');
-  menu.style('overflow', 'hidden');
+  menu.style("width", "420px");
+  menu.style("border-radius", "18px");
+  menu.style("background", "rgba(0,0,0,0.46)");
+  menu.style("backdrop-filter", "blur(12px)");
+  menu.style("-webkit-backdrop-filter", "blur(12px)");
+  menu.style("box-shadow", "0 12px 34px rgba(0,0,0,0.28)");
+  menu.style("font-family", "system-ui");
+  menu.style("color", "rgba(255,255,255,0.92)");
+  menu.style("overflow", "hidden");
 
-  menuHeader = createDiv('');
+  menuHeader = createDiv("");
   menuHeader.parent(menu);
-  menuHeader.style('display', 'flex');
-  menuHeader.style('align-items', 'center');
-  menuHeader.style('justify-content', 'space-between');
-  menuHeader.style('padding', '12px 14px');
-  menuHeader.style('user-select', 'none');
-  menuHeader.style('border-bottom', '1px solid rgba(255,255,255,0.10)');
+  menuHeader.style("display", "flex");
+  menuHeader.style("align-items", "center");
+  menuHeader.style("justify-content", "space-between");
+  menuHeader.style("padding", "12px 14px");
+  menuHeader.style("user-select", "none");
+  menuHeader.style("border-bottom", "1px solid rgba(255,255,255,0.10)");
 
-  let title = createDiv('Consent Camera Menu');
+  let title = createDiv("Consent Camera Menu");
   title.parent(menuHeader);
-  title.style('font-weight', '650');
-  title.style('font-size', '14px');
+  title.style("font-weight", "650");
+  title.style("font-size", "14px");
 
-  menuArrow = createDiv('▴');
+  menuArrow = createDiv("▴");
   menuArrow.parent(menuHeader);
-  menuArrow.style('font-size', '14px');
-  menuArrow.style('opacity', '0.9');
-  menuArrow.style('cursor', 'pointer');
+  menuArrow.style("font-size", "14px");
+  menuArrow.style("opacity", "0.9");
+  menuArrow.style("cursor", "pointer");
 
-  menuContent = createDiv('');
+  menuContent = createDiv("");
   menuContent.parent(menu);
-  menuContent.style('padding', '12px 14px');
-  menuContent.style('display', 'block');
-  menuContent.style('max-height', '340px');
-  menuContent.style('overflow-y', 'auto');
+  menuContent.style("padding", "12px 14px");
+  menuContent.style("display", "block");
+  menuContent.style("max-height", "340px");
+  menuContent.style("overflow-y", "auto");
 
   menuArrow.mousePressed(toggleMenu);
 
-  let hint = createDiv('Tip: hold an OK sign for ~3 seconds to consent.');
+  let hint = createDiv("Tip: hold an OK sign for ~3 seconds to consent.");
   hint.parent(menuContent);
-  hint.style('font-size', '12px');
-  hint.style('color', 'rgba(255,255,255,0.82)');
-  hint.style('margin-bottom', '12px');
+  hint.style("font-size", "12px");
+  hint.style("color", "rgba(255,255,255,0.82)");
+  hint.style("margin-bottom", "12px");
 
-  resetBtn = createButton('Reset Session');
+  resetBtn = createButton("Reset Session");
   resetBtn.parent(menuContent);
-  resetBtn.style('width', '100%');
-  resetBtn.style('margin-bottom', '12px');
+  resetBtn.style("width", "100%");
+  resetBtn.style("margin-bottom", "12px");
   styleDarkButton(resetBtn);
   resetBtn.mousePressed(resetSession);
 
-  let blurLab = createDiv('Blur Block Size');
+  let blurLab = createDiv("Blur Block Size");
   blurLab.parent(menuContent);
-  blurLab.style('font-size', '12px');
-  blurLab.style('color', 'rgba(255,255,255,0.88)');
-  blurLab.style('margin-bottom', '6px');
+  blurLab.style("font-size", "12px");
+  blurLab.style("color", "rgba(255,255,255,0.88)");
+  blurLab.style("margin-bottom", "6px");
 
   blurSlider = createSlider(6, 40, defaultBlur, 1);
   blurSlider.parent(menuContent);
-  blurSlider.style('width', '100%');
+  blurSlider.style("width", "100%");
 }
 
-function toggleMenu(){
+function toggleMenu() {
   menuExpanded = !menuExpanded;
-  menuContent.style('display', menuExpanded ? 'block' : 'none');
-  menuArrow.html(menuExpanded ? '▴' : '▾');
+  menuContent.style("display", menuExpanded ? "block" : "none");
+  menuArrow.html(menuExpanded ? "▴" : "▾");
 }
 
-function positionMenuTopRight(){
-  if(!menu) return;
+function positionMenuTopRight() {
+  if (!menu) return;
 
   let w = menu.elt.getBoundingClientRect().width;
   let x = width - w - sidePad;
   let y = bannerH + topPad;
 
+  //menu is parented to the mount div, so this is local coords
   menu.position(x, y);
 }
 
-function styleDarkButton(btn){
-  btn.style('background', 'rgba(255,255,255,0.14)');
-  btn.style('border', '1px solid rgba(255,255,255,0.20)');
-  btn.style('color', 'rgba(255,255,255,0.94)');
-  btn.style('border-radius', '14px');
-  btn.style('padding', '12px 12px');
-  btn.style('cursor', 'pointer');
+function styleDarkButton(btn) {
+  btn.style("background", "rgba(255,255,255,0.14)");
+  btn.style("border", "1px solid rgba(255,255,255,0.20)");
+  btn.style("color", "rgba(255,255,255,0.94)");
+  btn.style("border-radius", "14px");
+  btn.style("padding", "12px 12px");
+  btn.style("cursor", "pointer");
 }
 
-function resetSession(){
-  for(let f of trackedFaces) f.consented = false;
+function resetSession() {
+  for (let f of trackedFaces) f.consented = false;
 
   warnOn = false;
   warnTimer = 0;
-  statusMsg = '';
+  statusMsg = "";
   consentFlash = 0;
 
   okHoldMs = 0;
@@ -1303,7 +1399,7 @@ function resetSession(){
   okRemainingS = okHoldMsTarget / 1000;
   okCooldown = 0;
 
-  if(blurSlider) blurSlider.value(defaultBlur);
+  if (blurSlider) blurSlider.value(defaultBlur);
   activeEffect = 0;
   gridOn = false;
 }
