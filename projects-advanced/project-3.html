@@ -31,9 +31,8 @@
       Consent Camera. Faces stay pixelated by default, and capture stays locked until each detected face actively consents.
     </p>
 
-    <!-- camera sketch -->
+    <!-- camera sketch mount -->
     <section class="sketch-wrapper" data-scroll>
-      <!-- leaving this div here for structure, even if the sketch runs fullscreen -->
       <div id="sketch-consent-camera" class="sketch-embed"></div>
     </section>
 
@@ -63,17 +62,12 @@
     </section>
   </main>
 
-  <!-- p5 -->
+  <!-- libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-
-  <!-- ml5 -->
   <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
 
-  <!-- sketch -->
-  <script src="../p5-advanced/assignment-3/sketch.js"></script>
-
-  <!-- mount + size -->
-  <script src="../p5-advanced/assignment-3/run.js"></script>
+  <!-- camera script -->
+  <script src="../p5-advanced/assignment-3/camera.js" defer></script>
 
   <!-- scroll reveal -->
   <script src="../assets/js/main.js"></script>
