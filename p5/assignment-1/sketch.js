@@ -9,13 +9,20 @@ const glassRef  = [138, 178, 183, 100]; // RGBA as array for stroke()
 const shadow    = '#b5b7ae';
 const dumbbell  = '#4a4a42';
 
+const VIEW_SZ = 600;
+const LOGICAL_SZ = 400;
+const SCALE_UP = VIEW_SZ / LOGICAL_SZ;
+
 function setup() {
-  const canvas = createCanvas(400, 400);
+  const canvas = createCanvas(VIEW_SZ, VIEW_SZ);
   canvas.parent('sketch-container'); // attach to div in HTML
+  pixelDensity(1);
   angleMode(DEGREES);
 }
 
 function draw() {
+  push();
+  scale(SCALE_UP);
   background('#d5cebe');
 
   //========== room ==========
@@ -334,6 +341,8 @@ function draw() {
   translate(344.14, 187.65);
   rotate(32.02);
   ellipse(0, 0, 24.19, 27.62);
+  pop();
+
   pop();
 }
 

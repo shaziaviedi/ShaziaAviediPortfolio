@@ -11,7 +11,7 @@
   <!-- Styles -->
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body>
+<body class="page-home">
   <!-- Header -->
   <header class="site-header">
     <div class="header-inner">
@@ -25,15 +25,17 @@
     </div>
   </header>
 
-  <!-- fixed blur overlay between the 3D canvas and content -->
-  <!-- <div id="background-blur-layer"></div> -->
+  <!-- fullscreen 3D hero — stays behind the rest of the page while scrolling -->
+  <div class="site-hero-canvas-layer" aria-hidden="true">
+    <canvas id="hero-canvas"></canvas>
+  </div>
 
+  <!-- dark read-through layer; fades in with blur after the landing block -->
+  <div class="site-hero-scrim site-hero-scrim--home" aria-hidden="true"></div>
 
-  <main>
+  <main class="site-main-stack">
     <!-- Hero with 3D butterfly constellation -->
     <section class="hero">
-      <canvas id="hero-canvas"></canvas>
-
       <div class="hero-overlay">
         <div class="hero-text" data-scroll>
           <p class="hero-kicker">Design & Technology · Parsons School of Design</p>
@@ -241,7 +243,7 @@
             <a href="projects-advanced/project-3.html">Experimental Camera</a>
           </h3>
           <p class="project-description">
-            Consent Camera in the browser withholds clarity on purpose—faces arrive pixelated, capture stays locked,
+            Consent Camera in the browser withholds clarity on purpose: faces arrive pixelated, capture stays locked,
             and an OK gesture over time confirms consent via ml5 face and hand detection while the UI keeps that logic readable.
           </p>
           <div class="project-tags">
@@ -453,7 +455,7 @@
           </h3>
           <p class="project-description">
             A short autobiographical horror game built in p5.js about craving Indomie at midnight while a pocong stalks through a cramped bedroom in New York City.
-            Collect ten packets using arrow moves and rationed Sprint bursts across intro, chase, and escape beats before stamina—or the haunt—ends the night.
+            Collect ten packets using arrow moves and rationed Sprint bursts across intro, chase, and escape beats before either stamina or the haunt ends the night.
           </p>
           <div class="project-tags">
             <span class="tag">p5.js</span>

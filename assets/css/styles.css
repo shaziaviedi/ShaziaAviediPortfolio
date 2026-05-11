@@ -41,15 +41,62 @@ body {
   right: 0;
   z-index: 20;
 
-  /* glassy blur vibe */
-  backdrop-filter: blur(16px);
+  /*
+   * Fade zone below the nav row — lets backdrop blur taper instead of snapping off
+   * at a hard rectangle edge (mask + ::before blur share the same soft falloff).
+   */
+  padding-bottom: 2.75rem;
 
-  /* fade to transparent so it blends into hero */
-  background: linear-gradient(to bottom, rgba(2, 3, 8, 0.9), rgba(2, 3, 8, 0));
+  /*
+   * Hit targets live in .header-inner only; tapered region passes clicks through.
+   */
+  pointer-events: none;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  /* tint fades with blur so the glass reads consistent */
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 3, 8, 0.92) 0%,
+    rgba(2, 3, 8, 0.35) 55%,
+    rgba(2, 3, 8, 0) 90%
+  );
+
+  /*
+   * Alpha mask softens BOTH the tint + backdrop-filter composite so the edge
+   * isn’t a visible “blade” where blur ends.
+   */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 42%,
+    rgba(0, 0, 0, 0.55) 68%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 42%,
+    rgba(0, 0, 0, 0.55) 68%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 /* keeps header content aligned with the rest of the site width */
 .header-inner {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+
   max-width: 1120px;
   margin: 0 auto;
   padding: 1.2rem 1.5rem;
@@ -119,6 +166,8 @@ body {
   --purple-soft: #e0d4ff;
   --blue-accent: #4aa8ff;
   --silver: #cfd3df;
+  --home-hero-blur: 0px;
+  --home-scrim-alpha: 0;
 
 }
 
@@ -128,6 +177,7 @@ body {
   background: linear-gradient(120deg, var(--purple-main), var(--silver), var(--blue-accent));
   background-size: 220% 220%;
   -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
   animation: heroGradient 8s ease-in-out infinite;
 }
@@ -153,6 +203,68 @@ body {
 }
 
 /* ============================================================
+   SITE-WIDE FIXED 3D HERO (homepage + About)
+   ============================================================ */
+
+/* Full-viewport butterflies behind scrolled content */
+.site-hero-canvas-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.site-hero-canvas-layer #hero-canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.site-hero-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  transition:
+    opacity 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background-color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.site-hero-scrim--about {
+  background: rgba(2, 3, 8, 0.52);
+}
+
+/* Homepage: ramps with scroll — blur + tint stay coordinated */
+body.page-home .site-hero-scrim--home {
+  background: rgba(2, 3, 8, var(--home-scrim-alpha, 0));
+}
+
+body.page-home #hero-canvas {
+  filter: blur(var(--home-hero-blur)) saturate(1.05);
+}
+
+body.page-home .site-main-stack {
+  position: relative;
+  z-index: 3;
+  background: transparent;
+}
+
+body.page-about #hero-canvas {
+  filter: blur(13px) saturate(1.05);
+}
+
+/* About text sits above the frosted butterflies */
+body.page-about main.page {
+  position: relative;
+  z-index: 3;
+  background-color: transparent;
+}
+
+
+/* ============================================================
    HERO
    ============================================================ */
 
@@ -162,27 +274,12 @@ body {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  /* canvas + glow stuff stays contained */
+  background: transparent;
 }
 
-/* Three.js canvas behind everything */
-#hero-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-
-  /* no clicking the canvas, links should still work */
-  pointer-events: none;
-
-  transition: filter 0.55s ease;
-}
-
-/* blur canvas once user scrolls past Portfolio heading (JS toggles class) */
-body.hero-blur #hero-canvas {
-  filter: blur(16px) saturate(1.05);
-}
+/* ============================================================
+   HERO OVERLAY TEXT (canvas lives in .site-hero-canvas-layer on home / about)
+   ============================================================ */
 
 /* text overlay on top of canvas */
 .hero-overlay {
@@ -405,6 +502,13 @@ body.hero-blur #hero-canvas {
   margin-bottom: 1rem;
 }
 
+/* Large page titles — same shifting purple / silver / blue treatment as Advanced CC project h1 */
+.page-heading.heading-animated {
+  display: inline-block;
+  max-width: 100%;
+  box-decoration-break: clone;
+}
+
 /* page intro text */
 .page-subtitle {
   font-size: 0.95rem;
@@ -454,8 +558,7 @@ body.hero-blur #hero-canvas {
   background: radial-gradient(circle at top left, rgba(74, 168, 255, 0.15), transparent 55%);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 
-  cursor: zoom-in;
-  /* hint that fullscreen exists */
+  cursor: default;
 }
 
 /* iframe reset */
@@ -621,10 +724,15 @@ body.hero-blur #hero-canvas {
     grid-template-columns: 1fr;
     gap: 1.75rem;
   }
+
+  .work-card::before {
+    left: 8%;
+    right: 8%;
+  }
 }
 
 /* ============================================================
-   PORTFOLIO SECTION (TOP OF INDEX)
+   PORTFOLIO SECTION (TOP OF INDEX)
    ============================================================ */
 
 /* wrapper for selected works section */
@@ -689,32 +797,53 @@ body.hero-blur #hero-canvas {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* blurred glow behind card */
+/* blurred glow — organic, feathered cloud (blue + violet), biased toward .work-detail */
 .work-card::before {
   content: "";
   position: absolute;
-  left: 18%;
-  right: 18%;
+  left: 34%;
+  right: 10%;
   bottom: 10%;
   height: 80%;
 
-  /* blue stays the main oval, purple only shows up on the outer fade */
+  /* stacked offsets + gentle stops; blue core stays the accent #4aa8ff hue (no muddy/dark navy middle) */
   background:
-    /* base blue oval */
+    /* blue core — brightest at ellipse centre, feathers out through the same hue */
     radial-gradient(
-      ellipse at center,
-      rgba(74, 168, 255, 0.32) 0%,
-      rgba(2, 3, 8, 0) 70%
+      ellipse 52% 44% at 64% 50%,
+      rgba(74, 168, 255, 0.34) 0%,
+      rgba(74, 168, 255, 0.3) 32%,
+      rgba(74, 168, 255, 0.16) 56%,
+      rgba(74, 168, 255, 0.06) 76%,
+      rgba(74, 168, 255, 0) 96%
     ),
-    /* subtle purple "rim" that mostly lives near the edge */
+    /* second blue lobe — lower alpha so overlap doesn’t read as a dark pool */
     radial-gradient(
-      ellipse at center,
-      rgba(181, 140, 255, 0) 45%,
-      rgba(181, 140, 255, 0.15) 62%,
-      rgba(2, 3, 8, 0) 78%
+      ellipse 68% 58% at 52% 46%,
+      rgba(74, 168, 255, 0) 38%,
+      rgba(74, 168, 255, 0.08) 58%,
+      rgba(74, 168, 255, 0.04) 78%,
+      rgba(74, 168, 255, 0) 94%
+    ),
+    /* violet haze — wide, diffuse rim (unchanged palette) */
+    radial-gradient(
+      ellipse 118% 95% at 66% 54%,
+      rgba(181, 140, 255, 0) 42%,
+      rgba(181, 140, 255, 0.07) 64%,
+      rgba(181, 140, 255, 0.14) 76%,
+      rgba(181, 140, 255, 0.05) 86%,
+      rgba(181, 140, 255, 0) 98%
+    ),
+    /* ambient blue veil — same accent hue, very soft outer wash */
+    radial-gradient(
+      ellipse 140% 110% at 58% 52%,
+      rgba(74, 168, 255, 0) 50%,
+      rgba(74, 168, 255, 0.07) 72%,
+      rgba(74, 168, 255, 0.02) 88%,
+      rgba(74, 168, 255, 0) 100%
     );
 
-  filter: blur(32px);
+  filter: blur(46px);
   opacity: 0;
 
   pointer-events: none;
@@ -924,12 +1053,69 @@ body.hero-blur #hero-canvas {
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55);
 }
 
-/* canvas base size for project pages */
-.page--project #sketch-container canvas {
+/*
+ * CC Lab sketches on project pages (#sketch-container): on-page display matches Optical Illusion
+ * (native 600-wide art → ~480px width, height from aspect ratio). Scoped to non-fullscreen only.
+ */
+.page--project
+  .sketch-wrapper:not(.is-fullscreen)
+  #sketch-container:not(.sketch-embed--cc-game-wide)
+  canvas {
   display: block;
-  width: 480px;
+  width: min(480px, 100%);
   max-width: 100%;
   height: auto;
+}
+
+.page--project
+  .sketch-wrapper:not(.is-fullscreen)
+  #sketch-container:not(.sketch-embed--cc-game-wide):not(.sketch-embed--portrait)
+  canvas {
+  aspect-ratio: 1 / 1;
+}
+
+.page--project
+  .sketch-wrapper:not(.is-fullscreen)
+  #sketch-container.sketch-embed--portrait
+  canvas {
+  aspect-ratio: 2 / 3;
+}
+
+/*
+ * Autobiographical game (#7): strip width matches consent camera (Advanced project 3)
+ */
+.sketch-wrapper:has(#sketch-container.sketch-embed--cc-game-wide):not(.is-fullscreen) {
+  display: grid;
+  justify-content: center;
+  align-content: start;
+  gap: 1.4rem;
+  grid-template-columns: min(100%, 960px);
+}
+
+.sketch-wrapper:has(#sketch-container.sketch-embed--cc-game-wide):not(.is-fullscreen)
+  .sketch-fullscreen-toggle {
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  z-index: auto;
+  justify-self: end;
+}
+
+.page--project .sketch-wrapper:not(.is-fullscreen) #sketch-container.sketch-embed.sketch-embed--cc-game-wide {
+  width: 100%;
+  max-width: 960px;
+  padding: 0;
+  border-radius: 1.1rem;
+  overflow: hidden;
+}
+
+.page--project .sketch-wrapper:not(.is-fullscreen) #sketch-container.sketch-embed--cc-game-wide canvas {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+  aspect-ratio: 3 / 2;
 }
 
 /* Hard override: make project sketches as big as possible in fullscreen
@@ -1267,6 +1453,7 @@ body.hero-blur #hero-canvas {
   top: 1.5rem;
   right: 1.5rem;
   bottom: auto;
+  z-index: 10001;
   cursor: pointer;
 }
 
@@ -1280,11 +1467,29 @@ body.sketch-lock-scroll {
    ============================================================ */
 
 /* Project 3: make the camera frame behave like a real block */
-#sketch-consent-camera.sketch-embed{
+#sketch-consent-camera.sketch-embed {
   width: 100%;
   max-width: 960px; /* match project page width */
   padding: 0;
   cursor: default;
+}
+
+/* Consent camera — keep Fullscreen control under the sketch, right-aligned with canvas (not over the UI) */
+.sketch-wrapper:has(#sketch-consent-camera):not(.is-fullscreen) {
+  display: grid;
+  justify-content: center;
+  align-content: start;
+  gap: 1.4rem;
+  grid-template-columns: min(100%, 960px);
+}
+
+.sketch-wrapper:has(#sketch-consent-camera):not(.is-fullscreen) .sketch-fullscreen-toggle {
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  z-index: auto;
+  justify-self: end;
 }
 
 /* keep menu positioning sane */

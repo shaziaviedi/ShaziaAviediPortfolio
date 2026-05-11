@@ -79,6 +79,7 @@ function setup() {
   const canvas = createCanvas(600, 600);
   // mount into the project page container
   canvas.parent('sketch-container');
+  pixelDensity(1);
 
   imageMode(CENTER);
   startTime = millis();

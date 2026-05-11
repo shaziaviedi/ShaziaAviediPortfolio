@@ -1,10 +1,10 @@
 // main.js
 // - scroll reveal for [data-scroll] (now supports unscroll/reset)
-// - blur background (3D hero canvas) once you scroll past hero title
+// - homepage only: blur + tinted scrim over the fixed 3D hero after landing ("Scroll to explore")
 
 document.addEventListener("DOMContentLoaded", () => {
   setupScrollReveal();
-  setupBackgroundBlur();
+  setupHomeBackdropScroll();
   setupInfiniteDocGallery();
 });
 
@@ -40,37 +40,59 @@ function setupScrollReveal() {
   els.forEach((el) => observer.observe(el));
 }
 
-function setupBackgroundBlur() {
-  const heroCanvas = document.getElementById("hero-canvas");
-  const blurLayer = document.getElementById("background-blur-layer");
-  const heroHeading = document.querySelector(".hero-heading");
+function clamp01(v) {
+  return Math.min(1, Math.max(0, v));
+}
 
-  // Only run on the index page where these exist
-  if (!heroCanvas || !blurLayer || !heroHeading) return;
+/** Ramps blur + scrim as #portfolio rises — landing stays crystal-clear until ~“Scroll to explore” band */
+function setupHomeBackdropScroll() {
+  if (!document.body.classList.contains("page-home")) return;
 
-  let titleThreshold = 0;
+  const root = document.documentElement;
+  const portfolio = document.getElementById("portfolio");
+  const hint = document.querySelector(".hero-scroll-hint");
 
-  function recalcThreshold() {
-    const rect = heroHeading.getBoundingClientRect();
-    const scrollY = window.scrollY || window.pageYOffset || 0;
-    // blur starts once the bottom of the title has scrolled past the top
-    titleThreshold = rect.bottom + scrollY;
-  }
+  if (!portfolio || !hint) return;
 
-  recalcThreshold();
-  window.addEventListener("resize", recalcThreshold);
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  function onScroll() {
-    const y = window.scrollY || window.pageYOffset || 0;
-    if (y > titleThreshold) {
-      blurLayer.classList.add("is-active");
-    } else {
-      blurLayer.classList.remove("is-active");
+  function update() {
+    if (reduce.matches) {
+      const vh = window.innerHeight || 700;
+      const t = portfolio.getBoundingClientRect().top;
+      const hard = t < vh * 0.72 ? 1 : 0;
+      root.style.setProperty("--home-hero-blur", hard ? "12px" : "0px");
+      root.style.setProperty("--home-scrim-alpha", hard ? "0.5" : "0");
+      return;
     }
+
+    const vh = window.innerHeight || 680;
+    const hintRect = hint.getBoundingClientRect();
+    /* Don’t darken or blur until the reader has scrolled past the landing cue */
+    if (hintRect.bottom > vh * 0.93) {
+      root.style.setProperty("--home-hero-blur", "0px");
+      root.style.setProperty("--home-scrim-alpha", "0");
+      return;
+    }
+
+    const t = portfolio.getBoundingClientRect().top;
+    const start = vh * 0.94;
+    const end = vh * 0.38;
+
+    let p = 1;
+    if (t >= start) p = 0;
+    else if (t <= end) p = 1;
+    else p = (start - t) / (start - end);
+
+    p = clamp01(p);
+
+    root.style.setProperty("--home-hero-blur", `${(p * 13).toFixed(2)}px`);
+    root.style.setProperty("--home-scrim-alpha", `${(p * 0.52).toFixed(4)}`);
   }
 
-  window.addEventListener("scroll", onScroll);
-  onScroll();
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update, { passive: true });
+  update();
 }
 
 /**

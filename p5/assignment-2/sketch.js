@@ -4,6 +4,10 @@
 let P = {}; // all parameters for this cat live here
 const r = (a, b) => (a < b ? random(a, b) : random(b, a)); // min–max agnostic random
 
+/** logical layout (original 400²), rendered at VIEW_SZ to match other CC Lab sketches */
+const CAT_COORD = 400;
+const VIEW_SZ = 600;
+
 // --- color palettes ---
 const IRIS_COLORS = [
   "#cc7025","#adaa51","#d3b32a","#cfb1e5","#adeaea","#cfb1e5"
@@ -25,8 +29,9 @@ function pickDistinct(arr, avoid, tries=6){
 }
 
 function setup() {
-  const canvas = createCanvas(400, 400);
+  const canvas = createCanvas(VIEW_SZ, VIEW_SZ);
   canvas.parent('sketch-container'); // attach canvas into the div on the project page
+  pixelDensity(1);
   stroke(0);
   noFill();
   generateCat();
@@ -35,6 +40,8 @@ function setup() {
 
 
 function draw() {
+  push();
+  scale(VIEW_SZ / CAT_COORD);
   background(BG_COLOR);
   drawOuterFrame();    // thick border
 
@@ -210,6 +217,8 @@ function draw() {
   for (let s of P.wR) bezier(s.x1, s.y1, s.cx1, s.cy1, s.cx2, s.cy2, s.x2, s.y2);
   for (let s of P.wL) bezier(s.x1, s.y1, s.cx1, s.cy1, s.cx2, s.cy2, s.x2, s.y2);
   pop();
+
+  pop();
 }
 
 function mousePressed() { generateCat(); }
@@ -225,7 +234,7 @@ function drawOuterFrame() {
   noFill();
   stroke(255);
   strokeWeight(25);
-  rect(10, 10, width - 20, height - 20);
+  rect(10, 10, CAT_COORD - 20, CAT_COORD - 20);
   pop();
 }
 
