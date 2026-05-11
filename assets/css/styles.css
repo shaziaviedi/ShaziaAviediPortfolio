@@ -812,6 +812,83 @@ body.hero-blur #hero-canvas {
   max-width: 960px;
 }
 
+.page--project img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Prominent outbound link — project documentation pages (aligned with prose column, centered card) */
+.page--project > .page-subtitle {
+  margin-bottom: 2.4rem;
+}
+
+.page--project .project-live-cta {
+  width: 100%;
+  max-width: 44rem;
+  margin: 0 auto clamp(2.85rem, 5.5vw, 3.75rem);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding-block: clamp(1.45rem, 3vw, 2rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.page--project .project-live-cta + .page-text {
+  margin-top: 0;
+}
+
+.page--project .project-live-cta__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.45rem;
+
+  padding: 1.1rem clamp(2rem, 8vw, 2.85rem);
+  border-radius: 1rem;
+  border: 1px solid rgba(74, 168, 255, 0.5);
+  background: linear-gradient(135deg, rgba(74, 168, 255, 0.22), rgba(181, 140, 255, 0.14));
+  text-decoration: none;
+  color: #f6f6f6;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  width: fit-content;
+
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.page--project .project-live-cta__link:focus-visible {
+  outline: 2px solid rgba(74, 168, 255, 0.85);
+  outline-offset: 3px;
+}
+
+.page--project .project-live-cta__link:hover {
+  border-color: rgba(74, 168, 255, 0.65);
+  background: linear-gradient(135deg, rgba(74, 168, 255, 0.28), rgba(181, 140, 255, 0.18));
+}
+
+.page--project .project-live-cta__label {
+  font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1.3;
+}
+
+.page--project .project-live-cta__sublabel {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.65);
+}
+
 /* keeps main text line length readable */
 .page--project .page-text {
   max-width: 44rem;
@@ -864,6 +941,199 @@ body.hero-blur #hero-canvas {
   letter-spacing: 0.01em;
   text-transform: none;
   color: #4aa8ff;
+}
+
+/* Documentation screenshots on Advanced CC project pages */
+.page--project .project-doc-figure {
+  margin: 1.75rem 0 2rem;
+}
+
+.page--project .project-doc-figure img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.page--project .project-doc-figure figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Horizontal doc screenshot gallery — scroll-snap row, reusable */
+.doc-gallery {
+  margin: 1rem 0 2rem;
+  max-width: 100%;
+}
+
+.doc-gallery__masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+}
+
+.doc-gallery__eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.52);
+}
+
+.doc-gallery__hint {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(74, 168, 255, 0.58);
+  white-space: nowrap;
+}
+
+.doc-gallery__viewport {
+  position: relative;
+  max-width: 100%;
+}
+
+/* pointer-events:none so gestures and clicks reach the scroll area below */
+.doc-gallery__edge {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+}
+
+.doc-gallery__edge--end {
+  right: 0;
+  width: clamp(2.75rem, 12vw, 7rem);
+  background: linear-gradient(to right, rgba(2, 3, 8, 0) 10%, rgba(2, 3, 8, 0.75) 55%, rgba(2, 3, 8, 0.95) 100%);
+}
+
+.doc-gallery__scroller {
+  position: relative;
+  z-index: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0.75rem;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 168, 255, 0.4) transparent;
+}
+
+.doc-gallery__scroller.doc-gallery__scroller--loop-jump {
+  scroll-snap-type: none;
+}
+
+/* Large centred “deck” slides with neighbour peeks (opt in via modifier) */
+.doc-gallery--cards .doc-gallery__scroller {
+  container-type: inline-size;
+  container-name: doc-gallery-slide;
+  --doc-gallery-slide: clamp(17.5rem, 76cqw, 41rem);
+
+  scroll-padding-inline: max(0.85rem, calc((100cqw - var(--doc-gallery-slide)) / 2));
+}
+
+.doc-gallery__scroller:focus-visible {
+  outline: 2px solid rgba(74, 168, 255, 0.75);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar {
+  height: 7px;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar-track {
+  background: transparent;
+  margin-inline: 0.25rem;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar-thumb {
+  background: rgba(74, 168, 255, 0.35);
+  border-radius: 999px;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 168, 255, 0.5);
+}
+
+.doc-gallery__row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  padding: 0.25rem 0.75rem 0.35rem;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+.doc-gallery--cards .doc-gallery__row {
+  gap: clamp(0.85rem, 2.75cqw, 1.35rem);
+  padding-block: 0.4rem 0.75rem;
+  padding-inline: max(1rem, calc((100cqw - var(--doc-gallery-slide)) / 2));
+}
+
+.doc-gallery__item {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  scroll-snap-stop: normal;
+  margin: 0;
+
+  width: min(268px, calc(100% - 1.75rem));
+  box-sizing: border-box;
+}
+
+.doc-gallery--cards .doc-gallery__item {
+  scroll-snap-stop: normal;
+
+  flex: 0 0 var(--doc-gallery-slide);
+  width: var(--doc-gallery-slide);
+  max-width: none;
+}
+
+.doc-gallery__frame {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: radial-gradient(circle at top left, rgba(74, 168, 255, 0.18), transparent 60%);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.52);
+}
+
+.doc-gallery--cards .doc-gallery__frame {
+  padding: 1rem 1.1rem;
+  border-radius: 1.05rem;
+}
+
+.doc-gallery__frame img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.doc-gallery__caption {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: rgba(246, 246, 255, 0.78);
 }
 
 
