@@ -99,7 +99,7 @@ body {
 
   max-width: 1120px;
   margin: 0 auto;
-  padding: 1.2rem 1.5rem;
+  padding: 1.2rem 1.5rem 2.4rem;
 
   display: flex;
   align-items: center;
@@ -187,6 +187,13 @@ body {
   font-size: inherit;
 }
 
+/* extra anchor offset for fixed header nav jumps */
+#portfolio,
+#advanced-cc,
+#cc-lab {
+  scroll-margin-top: 2.5rem;
+}
+
 /* gradient slide animation */
 @keyframes heroGradient {
   0% {
@@ -261,6 +268,7 @@ body.page-about main.page {
   position: relative;
   z-index: 3;
   background-color: transparent;
+  max-width: 1120px;
 }
 
 
@@ -530,6 +538,115 @@ body.page-about main.page {
   font-size: 1rem;
   font-weight: 500;
 }
+
+.page-section-title--blue {
+  color: #4aa8ff;
+}
+
+.about-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 360px);
+  gap: 4.0rem;
+  align-items: start;
+}
+
+.about-copy {
+  min-width: 0;
+}
+
+.about-photo-frame {
+  margin: 0;
+  justify-self: end;
+  width: clamp(240px, 30vw, 360px);
+  border-radius: 50% / 30%;
+  padding: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: linear-gradient(150deg, rgba(181, 140, 255, 0.28), rgba(74, 168, 255, 0.22));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+.about-photo-frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 24%;
+  border-radius: inherit;
+}
+
+.about-contact {
+  margin-top: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.about-contact-button {
+  display: inline-block;
+  width: fit-content;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(2, 3, 8, 0.55);
+  color: #f6f6f6;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.about-contact-button:hover {
+  border-color: rgba(74, 168, 255, 0.85);
+  color: #ffffff;
+  background: rgba(74, 168, 255, 0.12);
+}
+
+.about-social-links {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.about-social-links a {
+  color: rgba(246, 246, 246, 0.86);
+  text-decoration: none;
+  position: relative;
+}
+
+.about-social-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.18rem;
+  width: 0;
+  height: 1px;
+  background: #4aa8ff;
+  transition: width 0.2s ease;
+}
+
+.about-social-links a:hover {
+  color: #ffffff;
+}
+
+.about-social-links a:hover::after {
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .about-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .about-photo-frame {
+    justify-self: start;
+    width: min(72vw, 330px);
+  }
+}
+
 
 /* ============================================================
    SKETCH WRAPPER (EMBEDDED P5 / IFRAMES)
