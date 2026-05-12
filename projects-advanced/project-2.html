@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Interactive Typography · Advanced Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- main site css -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+
+  <!-- only for the fragile sketch -->
+  <link rel="stylesheet" href="../p5-advanced/assignment-2/fragile/style.css">
+</head>
+
+<body>
+  <!-- same header as rest of site -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#advanced-cc">Critical Computation</a>
+        <a href="../about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- same project page layout style as cc lab pages -->
+  <main class="page page--project">
+    <h1 class="page-heading heading-animated" data-scroll>Interactive Typography</h1>
+
+    <p class="page-subtitle" data-scroll>
+      Three interactive poster sketches where motion and interaction support the meaning of each word.
+      Words: Clean, Fragile, Drift.
+    </p>
+
+    <!-- CLEAN -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Clean</h2>
+      <p data-scroll>
+        A foggy window scene where a squeegee swipe clears the glass and reveals clean.
+      </p>
+    </section>
+
+    <!-- sketch frame -->
+    <section class="sketch-wrapper" data-scroll>
+      <div id="sketch-clean" class="sketch-embed"></div>
+    </section>
+
+    <!-- FRAGILE -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Fragile</h2>
+      <p data-scroll>
+        An egg drops and cracks, and the yolk spreads into a puddle that spells fragile.
+      </p>
+    </section>
+
+    <section class="sketch-wrapper" data-scroll>
+      <div id="sketch-fragile" class="sketch-embed"></div>
+    </section>
+
+    <!-- DRIFT -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Drift</h2>
+      <p data-scroll>
+        Blow on a dandelion and the seeds drift across the canvas, gradually forming drift.
+      </p>
+    </section>
+
+    <section class="sketch-wrapper" data-scroll>
+      <div id="sketch-drift" class="sketch-embed"></div>
+    </section>
+
+    <!-- short reflection section -->
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Reflection</h2>
+
+      <p data-scroll>
+        Started with the three words and treated each one like an interaction prompt, not just a text prompt.
+        Before making anything polished, prototyped the core gesture for each sketch on a plain background to check one thing.
+        The interaction needed to communicate the word in a few seconds without instructions.
+      </p>
+
+      <p data-scroll>
+        For Clean, the first tests were just rectangles erasing a fog layer.
+        That version worked conceptually but looked too digital, so it got rebuilt as a window scene with a squeegee cursor,
+        a heavier frame, and a wipe that leaves more believable streak spacing.
+        Most of the refinement was tuning the stamp spacing so fast swipes do not look dashed,
+        and making the word readable only after enough clearing happens.
+      </p>
+
+      <p data-scroll>
+        For Fragile, the earliest prototype had the egg dropping immediately, but it felt too sudden and there was no reason to interact.
+        The click-to-rock phase came first, then a clearer state change into dropping, then the split into two shell halves so the impact feels earned.
+        The yolk word started as particles snapping to letter points and it looked too rigid,
+        so the morph got slowed down and drag plus jitter got added.
+        The particle spill also got staggered so it spreads like liquid before resolving into the word.
+        The slight blur in the egg sketch is intentional.
+        It is meant to feel like soft focus and adds to the messiness around the egg and yolk.
+      </p>
+
+      <p data-scroll>
+        For Drift, the first version moved points straight from the flower to the word and it felt mechanical.
+        The final version uses a hover zone to activate the dandelion and a touch radius to catch points gradually,
+        so it reads more like drifting seeds than a teleport.
+        The drift-off and reset phase came last, after the word formation felt stable,
+        so the loop reads like an ongoing breeze instead of a one-time animation.
+      </p>
+
+      <p data-scroll>
+        Overall, the process was prototype interaction first, then build the visual world around it,
+        then tune timing, thresholds, and motion until the behavior feels like the word instead of an effect sitting on top of text.
+      </p>
+    </section>
+  </main>
+
+  <!-- p5 core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+  <!-- CLEAN -->
+  <script src="../p5-advanced/assignment-2/clean/sketch.js"></script>
+  <script src="../p5-advanced/assignment-2/clean/run.js"></script>
+
+  <!-- FRAGILE -->
+  <script src="../p5-advanced/assignment-2/fragile/sketch.js"></script>
+  <script src="../p5-advanced/assignment-2/fragile/run.js"></script>
+
+  <!-- DRIFT -->
+  <script src="../p5-advanced/assignment-2/drift/sketch.js"></script>
+  <script src="../p5-advanced/assignment-2/drift/run.js"></script>
+
+  <!-- keeps scroll reveal behavior consistent with rest of site -->
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/sketch-fullscreen.js"></script>
+</body>
+</html>

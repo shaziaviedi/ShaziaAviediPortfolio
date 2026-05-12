@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-<body>
+<body class="has-hero-backdrop page-about">
   <header class="site-header">
     <div class="header-inner">
       <a href="index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
@@ -21,8 +21,13 @@
     </div>
   </header>
 
+  <div class="site-hero-canvas-layer" aria-hidden="true">
+    <canvas id="hero-canvas"></canvas>
+  </div>
+  <div class="site-hero-scrim site-hero-scrim--about" aria-hidden="true"></div>
+
   <main class="page">
-    <h1 class="page-heading" data-scroll>About</h1>
+    <h1 class="page-heading heading-animated" data-scroll>About</h1>
     <p class="page-subtitle" data-scroll>
       Design and Technology student exploring creative coding, interaction, and stories that sit
       between Jakarta and New York.
@@ -51,6 +56,14 @@
     </p>
   </main>
 
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.159.0/build/three.module.js"
+    }
+  }
+  </script>
+  <script type="module" src="assets/js/hero-3d.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 </html>

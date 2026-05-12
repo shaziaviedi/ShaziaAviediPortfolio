@@ -1,0 +1,12 @@
+/* only styling the fragile sketch area */
+
+/* dont override .sketch-embed padding, it’s the frame spacing */
+#sketch-fragile {
+  margin: 0;
+}
+
+/* just the canvas look */
+#sketch-fragile canvas {
+  display: block;
+  filter: blur(2px) contrast(1.2);
+}

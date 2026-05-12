@@ -20,6 +20,7 @@ body{
   zoom: 1.15;
 }
 
+
 /* default site look: dark bg, light text, main font */
 body {
   font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -40,15 +41,62 @@ body {
   right: 0;
   z-index: 20;
 
-  /* glassy blur vibe */
-  backdrop-filter: blur(16px);
+  /*
+   * Fade zone below the nav row — lets backdrop blur taper instead of snapping off
+   * at a hard rectangle edge (mask + ::before blur share the same soft falloff).
+   */
+  padding-bottom: 2.75rem;
 
-  /* fade to transparent so it blends into hero */
-  background: linear-gradient(to bottom, rgba(2, 3, 8, 0.9), rgba(2, 3, 8, 0));
+  /*
+   * Hit targets live in .header-inner only; tapered region passes clicks through.
+   */
+  pointer-events: none;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  /* tint fades with blur so the glass reads consistent */
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 3, 8, 0.92) 0%,
+    rgba(2, 3, 8, 0.35) 55%,
+    rgba(2, 3, 8, 0) 90%
+  );
+
+  /*
+   * Alpha mask softens BOTH the tint + backdrop-filter composite so the edge
+   * isn’t a visible “blade” where blur ends.
+   */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 42%,
+    rgba(0, 0, 0, 0.55) 68%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 42%,
+    rgba(0, 0, 0, 0.55) 68%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 /* keeps header content aligned with the rest of the site width */
 .header-inner {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+
   max-width: 1120px;
   margin: 0 auto;
   padding: 1.2rem 1.5rem;
@@ -118,6 +166,8 @@ body {
   --purple-soft: #e0d4ff;
   --blue-accent: #4aa8ff;
   --silver: #cfd3df;
+  --home-hero-blur: 0px;
+  --home-scrim-alpha: 0;
 
 }
 
@@ -127,6 +177,7 @@ body {
   background: linear-gradient(120deg, var(--purple-main), var(--silver), var(--blue-accent));
   background-size: 220% 220%;
   -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
   animation: heroGradient 8s ease-in-out infinite;
 }
@@ -152,6 +203,68 @@ body {
 }
 
 /* ============================================================
+   SITE-WIDE FIXED 3D HERO (homepage + About)
+   ============================================================ */
+
+/* Full-viewport butterflies behind scrolled content */
+.site-hero-canvas-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.site-hero-canvas-layer #hero-canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.site-hero-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  transition:
+    opacity 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background-color 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.site-hero-scrim--about {
+  background: rgba(2, 3, 8, 0.52);
+}
+
+/* Homepage: ramps with scroll — blur + tint stay coordinated */
+body.page-home .site-hero-scrim--home {
+  background: rgba(2, 3, 8, var(--home-scrim-alpha, 0));
+}
+
+body.page-home #hero-canvas {
+  filter: blur(var(--home-hero-blur)) saturate(1.05);
+}
+
+body.page-home .site-main-stack {
+  position: relative;
+  z-index: 3;
+  background: transparent;
+}
+
+body.page-about #hero-canvas {
+  filter: blur(13px) saturate(1.05);
+}
+
+/* About text sits above the frosted butterflies */
+body.page-about main.page {
+  position: relative;
+  z-index: 3;
+  background-color: transparent;
+}
+
+
+/* ============================================================
    HERO
    ============================================================ */
 
@@ -161,27 +274,12 @@ body {
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  /* canvas + glow stuff stays contained */
+  background: transparent;
 }
 
-/* Three.js canvas behind everything */
-#hero-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-
-  /* no clicking the canvas, links should still work */
-  pointer-events: none;
-
-  transition: filter 0.55s ease;
-}
-
-/* blur canvas once user scrolls past Portfolio heading (JS toggles class) */
-body.hero-blur #hero-canvas {
-  filter: blur(16px) saturate(1.05);
-}
+/* ============================================================
+   HERO OVERLAY TEXT (canvas lives in .site-hero-canvas-layer on home / about)
+   ============================================================ */
 
 /* text overlay on top of canvas */
 .hero-overlay {
@@ -399,9 +497,16 @@ body.hero-blur #hero-canvas {
 
 /* page main heading */
 .page-heading {
-  font-size: 2rem;
-  font-weight: 500;
+  font-size: 2.2rem;
+  font-weight: 600;
   margin-bottom: 1rem;
+}
+
+/* Large page titles — same shifting purple / silver / blue treatment as Advanced CC project h1 */
+.page-heading.heading-animated {
+  display: inline-block;
+  max-width: 100%;
+  box-decoration-break: clone;
 }
 
 /* page intro text */
@@ -453,8 +558,7 @@ body.hero-blur #hero-canvas {
   background: radial-gradient(circle at top left, rgba(74, 168, 255, 0.15), transparent 55%);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
 
-  cursor: zoom-in;
-  /* hint that fullscreen exists */
+  cursor: default;
 }
 
 /* iframe reset */
@@ -481,6 +585,13 @@ body.hero-blur #hero-canvas {
   max-width: 100%;
   height: auto;
 }
+
+:root { --site-zoom: 1.15; }
+
+.sketch-wrapper {
+  zoom: calc(1 / var(--site-zoom));
+}
+
 
 /* ============================================================
    GALLERY GRID (OTHER WORKS)
@@ -613,10 +724,15 @@ body.hero-blur #hero-canvas {
     grid-template-columns: 1fr;
     gap: 1.75rem;
   }
+
+  .work-card::before {
+    left: 8%;
+    right: 8%;
+  }
 }
 
 /* ============================================================
-   PORTFOLIO SECTION (TOP OF INDEX)
+   PORTFOLIO SECTION (TOP OF INDEX)
    ============================================================ */
 
 /* wrapper for selected works section */
@@ -681,32 +797,53 @@ body.hero-blur #hero-canvas {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* blurred glow behind card */
+/* blurred glow — organic, feathered cloud (blue + violet), biased toward .work-detail */
 .work-card::before {
   content: "";
   position: absolute;
-  left: 18%;
-  right: 18%;
+  left: 34%;
+  right: 10%;
   bottom: 10%;
   height: 80%;
 
-  /* blue stays the main oval, purple only shows up on the outer fade */
+  /* stacked offsets + gentle stops; blue core stays the accent #4aa8ff hue (no muddy/dark navy middle) */
   background:
-    /* base blue oval */
+    /* blue core — brightest at ellipse centre, feathers out through the same hue */
     radial-gradient(
-      ellipse at center,
-      rgba(74, 168, 255, 0.32) 0%,
-      rgba(2, 3, 8, 0) 70%
+      ellipse 52% 44% at 64% 50%,
+      rgba(74, 168, 255, 0.34) 0%,
+      rgba(74, 168, 255, 0.3) 32%,
+      rgba(74, 168, 255, 0.16) 56%,
+      rgba(74, 168, 255, 0.06) 76%,
+      rgba(74, 168, 255, 0) 96%
     ),
-    /* subtle purple "rim" that mostly lives near the edge */
+    /* second blue lobe — lower alpha so overlap doesn’t read as a dark pool */
     radial-gradient(
-      ellipse at center,
-      rgba(181, 140, 255, 0) 45%,
-      rgba(181, 140, 255, 0.15) 62%,
-      rgba(2, 3, 8, 0) 78%
+      ellipse 68% 58% at 52% 46%,
+      rgba(74, 168, 255, 0) 38%,
+      rgba(74, 168, 255, 0.08) 58%,
+      rgba(74, 168, 255, 0.04) 78%,
+      rgba(74, 168, 255, 0) 94%
+    ),
+    /* violet haze — wide, diffuse rim (unchanged palette) */
+    radial-gradient(
+      ellipse 118% 95% at 66% 54%,
+      rgba(181, 140, 255, 0) 42%,
+      rgba(181, 140, 255, 0.07) 64%,
+      rgba(181, 140, 255, 0.14) 76%,
+      rgba(181, 140, 255, 0.05) 86%,
+      rgba(181, 140, 255, 0) 98%
+    ),
+    /* ambient blue veil — same accent hue, very soft outer wash */
+    radial-gradient(
+      ellipse 140% 110% at 58% 52%,
+      rgba(74, 168, 255, 0) 50%,
+      rgba(74, 168, 255, 0.07) 72%,
+      rgba(74, 168, 255, 0.02) 88%,
+      rgba(74, 168, 255, 0) 100%
     );
 
-  filter: blur(32px);
+  filter: blur(46px);
   opacity: 0;
 
   pointer-events: none;
@@ -804,6 +941,96 @@ body.hero-blur #hero-canvas {
   max-width: 960px;
 }
 
+.page--project img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Prominent outbound link — project documentation pages (aligned with prose column, centered card) */
+.page--project > .page-subtitle {
+  margin-bottom: 2.4rem;
+}
+
+.page--project .project-live-cta {
+  width: 100%;
+  max-width: 44rem;
+  margin: 0 auto clamp(2.85rem, 5.5vw, 3.75rem);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding-block: clamp(1.45rem, 3vw, 2rem);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.page--project .project-live-cta + .page-text {
+  margin-top: 0;
+}
+
+.page--project .project-live-cta__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.45rem;
+
+  padding: 1.1rem clamp(2rem, 8vw, 2.85rem);
+  border-radius: 1rem;
+  border: 1px solid rgba(74, 168, 255, 0.5);
+  background: linear-gradient(135deg, rgba(74, 168, 255, 0.22), rgba(181, 140, 255, 0.14));
+  text-decoration: none;
+  color: #f6f6f6;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  width: fit-content;
+
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.page--project .project-live-cta__link:focus-visible {
+  outline: 2px solid rgba(74, 168, 255, 0.85);
+  outline-offset: 3px;
+}
+
+.page--project .project-live-cta__link:hover {
+  border-color: rgba(74, 168, 255, 0.65);
+  background: linear-gradient(135deg, rgba(74, 168, 255, 0.28), rgba(181, 140, 255, 0.18));
+}
+
+.page--project .project-live-cta__label {
+  font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1.3;
+}
+
+.page--project .project-live-cta__sublabel {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.65);
+}
+
+/* lists inside Advanced CC project prose */
+.page--project .page-text ul {
+  margin: 0.45rem 0 1.2rem;
+  padding-left: 1.35rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(246, 246, 246, 0.9);
+}
+
+.page--project .page-text li + li {
+  margin-top: 0.3rem;
+}
+
 /* keeps main text line length readable */
 .page--project .page-text {
   max-width: 44rem;
@@ -826,12 +1053,69 @@ body.hero-blur #hero-canvas {
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55);
 }
 
-/* canvas base size for project pages */
-.page--project #sketch-container canvas {
+/*
+ * CC Lab sketches on project pages (#sketch-container): on-page display matches Optical Illusion
+ * (native 600-wide art → ~480px width, height from aspect ratio). Scoped to non-fullscreen only.
+ */
+.page--project
+  .sketch-wrapper:not(.is-fullscreen)
+  #sketch-container:not(.sketch-embed--cc-game-wide)
+  canvas {
   display: block;
-  width: 480px;
+  width: min(480px, 100%);
   max-width: 100%;
   height: auto;
+}
+
+.page--project
+  .sketch-wrapper:not(.is-fullscreen)
+  #sketch-container:not(.sketch-embed--cc-game-wide):not(.sketch-embed--portrait)
+  canvas {
+  aspect-ratio: 1 / 1;
+}
+
+.page--project
+  .sketch-wrapper:not(.is-fullscreen)
+  #sketch-container.sketch-embed--portrait
+  canvas {
+  aspect-ratio: 2 / 3;
+}
+
+/*
+ * Autobiographical game (#7): strip width matches consent camera (Advanced project 3)
+ */
+.sketch-wrapper:has(#sketch-container.sketch-embed--cc-game-wide):not(.is-fullscreen) {
+  display: grid;
+  justify-content: center;
+  align-content: start;
+  gap: 1.4rem;
+  grid-template-columns: min(100%, 960px);
+}
+
+.sketch-wrapper:has(#sketch-container.sketch-embed--cc-game-wide):not(.is-fullscreen)
+  .sketch-fullscreen-toggle {
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  z-index: auto;
+  justify-self: end;
+}
+
+.page--project .sketch-wrapper:not(.is-fullscreen) #sketch-container.sketch-embed.sketch-embed--cc-game-wide {
+  width: 100%;
+  max-width: 960px;
+  padding: 0;
+  border-radius: 1.1rem;
+  overflow: hidden;
+}
+
+.page--project .sketch-wrapper:not(.is-fullscreen) #sketch-container.sketch-embed--cc-game-wide canvas {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+  aspect-ratio: 3 / 2;
 }
 
 /* Hard override: make project sketches as big as possible in fullscreen
@@ -858,48 +1142,202 @@ body.hero-blur #hero-canvas {
   color: #4aa8ff;
 }
 
-/* Main project title glow (soft purple) */
-.page-heading {
+/* Documentation screenshots on Advanced CC project pages */
+.page--project .project-doc-figure {
+  margin: 1.75rem 0 2rem;
+}
+
+.page--project .project-doc-figure img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.page--project .project-doc-figure figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Horizontal doc screenshot gallery — scroll-snap row, reusable */
+.doc-gallery {
+  margin: 1rem 0 2rem;
+  max-width: 100%;
+}
+
+.doc-gallery__masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  max-width: 100%;
+}
+
+.doc-gallery__eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: rgba(246, 246, 246, 0.52);
+}
+
+.doc-gallery__hint {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(74, 168, 255, 0.58);
+  white-space: nowrap;
+}
+
+.doc-gallery__viewport {
   position: relative;
-  display: inline-block;
-  z-index: 1;
+  max-width: 100%;
 }
 
-/* glow behind heading */
-.page-heading::before {
-  content: "";
-  position: absolute;
-  inset: -0.35rem -1.8rem;
-  z-index: -1;
-  border-radius: 999px;
-
-  /* 2 radial glows blended */
-  background:
-    radial-gradient(circle at 0% 0%, rgba(181, 140, 255, 0.55) 0, transparent 55%),
-    radial-gradient(circle at 100% 100%, rgba(111, 86, 230, 0.52) 0, transparent 55%);
-  filter: blur(18px);
-  opacity: 0.7;
+/* pointer-events:none so gestures and clicks reach the scroll area below */
+.doc-gallery__edge {
   pointer-events: none;
-  animation: projectHeadingGlow 11s ease-in-out infinite alternate;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
 }
 
-/* heading glow drift animation */
-@keyframes projectHeadingGlow {
-  0% {
-    transform: translate3d(-4px, 2px, 0) scale(0.98);
-    opacity: 0.5;
-  }
-
-  50% {
-    transform: translate3d(3px, -2px, 0) scale(1.03);
-    opacity: 0.9;
-  }
-
-  100% {
-    transform: translate3d(2px, 3px, 0) scale(1);
-    opacity: 0.7;
-  }
+.doc-gallery__edge--end {
+  right: 0;
+  width: clamp(2.75rem, 12vw, 7rem);
+  background: linear-gradient(to right, rgba(2, 3, 8, 0) 10%, rgba(2, 3, 8, 0.75) 55%, rgba(2, 3, 8, 0.95) 100%);
 }
+
+.doc-gallery__scroller {
+  position: relative;
+  z-index: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0.75rem;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(74, 168, 255, 0.4) transparent;
+}
+
+.doc-gallery__scroller.doc-gallery__scroller--loop-jump {
+  scroll-snap-type: none;
+}
+
+/* Large centred “deck” slides with neighbour peeks (opt in via modifier) */
+.doc-gallery--cards .doc-gallery__scroller {
+  container-type: inline-size;
+  container-name: doc-gallery-slide;
+  --doc-gallery-slide: clamp(17.5rem, 76cqw, 41rem);
+
+  scroll-padding-inline: max(0.85rem, calc((100cqw - var(--doc-gallery-slide)) / 2));
+}
+
+.doc-gallery__scroller:focus-visible {
+  outline: 2px solid rgba(74, 168, 255, 0.75);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar {
+  height: 7px;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar-track {
+  background: transparent;
+  margin-inline: 0.25rem;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar-thumb {
+  background: rgba(74, 168, 255, 0.35);
+  border-radius: 999px;
+}
+
+.doc-gallery__scroller::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 168, 255, 0.5);
+}
+
+.doc-gallery__row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  padding: 0.25rem 0.75rem 0.35rem;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+.doc-gallery--cards .doc-gallery__row {
+  gap: clamp(0.85rem, 2.75cqw, 1.35rem);
+  padding-block: 0.4rem 0.75rem;
+  padding-inline: max(1rem, calc((100cqw - var(--doc-gallery-slide)) / 2));
+}
+
+.doc-gallery__item {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  scroll-snap-stop: normal;
+  margin: 0;
+
+  width: min(268px, calc(100% - 1.75rem));
+  box-sizing: border-box;
+}
+
+.doc-gallery--cards .doc-gallery__item {
+  scroll-snap-stop: normal;
+
+  flex: 0 0 var(--doc-gallery-slide);
+  width: var(--doc-gallery-slide);
+  max-width: none;
+}
+
+.doc-gallery__frame {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: radial-gradient(circle at top left, rgba(74, 168, 255, 0.18), transparent 60%);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.52);
+}
+
+.doc-gallery--cards .doc-gallery__frame {
+  padding: 1rem 1.1rem;
+  border-radius: 1.05rem;
+}
+
+.doc-gallery__frame img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.doc-gallery__caption {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: rgba(246, 246, 255, 0.78);
+}
+
+
+
+
 
 /* ============================================================
    SCROLL REVEAL
@@ -1015,10 +1453,54 @@ body.hero-blur #hero-canvas {
   top: 1.5rem;
   right: 1.5rem;
   bottom: auto;
+  z-index: 10001;
   cursor: pointer;
 }
 
 /* stop body scrolling when fullscreen is open */
 body.sketch-lock-scroll {
   overflow: hidden;
+}
+
+/* ============================================================
+   PROJECT 3 SKETCH
+   ============================================================ */
+
+/* Project 3: make the camera frame behave like a real block */
+#sketch-consent-camera.sketch-embed {
+  width: 100%;
+  max-width: 960px; /* match project page width */
+  padding: 0;
+  cursor: default;
+}
+
+/* Consent camera — keep Fullscreen control under the sketch, right-aligned with canvas (not over the UI) */
+.sketch-wrapper:has(#sketch-consent-camera):not(.is-fullscreen) {
+  display: grid;
+  justify-content: center;
+  align-content: start;
+  gap: 1.4rem;
+  grid-template-columns: min(100%, 960px);
+}
+
+.sketch-wrapper:has(#sketch-consent-camera):not(.is-fullscreen) .sketch-fullscreen-toggle {
+  position: static;
+  right: auto;
+  bottom: auto;
+  top: auto;
+  z-index: auto;
+  justify-self: end;
+}
+
+/* keep menu positioning sane */
+#sketch-consent-camera{
+  position: relative;
+  overflow: hidden;
+}
+
+/* canvas should scale visually with the frame */
+#sketch-consent-camera canvas{
+  display: block;
+  width: 100% !important;
+  height: auto !important;
 }

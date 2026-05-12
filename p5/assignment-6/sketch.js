@@ -34,6 +34,7 @@ function setup() {
   // Parent the WEBGL canvas into the project sketch frame
   const cnv = createCanvas(600, 600, WEBGL);
   cnv.parent('sketch-container');
+  pixelDensity(1);
 
   noStroke();
   colorMode(HSB, 360, 100, 100, 255);

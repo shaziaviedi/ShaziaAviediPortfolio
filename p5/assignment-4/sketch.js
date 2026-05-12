@@ -12,15 +12,24 @@ const hatColor = '#fadd9b';
 const brownOutline = '#473b33';
 const blueOutline = '#46566e';
 
+/** 400×600 logical art → 600-wide canvas (matches square CC Lab sketches’ width). */
+const LOGICAL_W = 400;
+const LOGICAL_H = 600;
+const VIEW_W = 600;
+const VIEW_H = Math.round(LOGICAL_H * (VIEW_W / LOGICAL_W));
+
 /*==========draw==========*/
 
 function setup() {
-  const canvas = createCanvas(400, 600);
+  const canvas = createCanvas(VIEW_W, VIEW_H);
   // mount into portfolio project container
   canvas.parent('sketch-container');
+  pixelDensity(1);
 }
 
 function draw() {
+  push();
+  scale(VIEW_W / LOGICAL_W);
   background('#e3cad2');
   strokeWeight(1.5);
   
@@ -46,6 +55,8 @@ function draw() {
   drawSclera();
   // pupils (no clip – they sit inside the sclera already)
   drawPupils(eyeColor, brownOutline);
+
+  pop();
 }
 
 /*==========helpers==========*/

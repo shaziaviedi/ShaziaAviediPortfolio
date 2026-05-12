@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Experimental Camera · Advanced Critical Computation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- main site css -->
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="../index.html" class="site-title heading-animated-small">NAFIZA SHAZIA AVIEDI</a>
+      <nav class="site-nav">
+        <a href="../index.html#portfolio">Portfolio</a>
+        <a href="../index.html#advanced-cc">Critical Computation</a>
+        <a href="../about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page page--project">
+    <h1 class="page-heading heading-animated" data-scroll>Experimental Camera</h1>
+
+    <p class="page-subtitle" data-scroll>
+      Consent Camera. Faces stay pixelated by default, and capture stays locked until each detected face actively consents.
+    </p>
+
+    <!-- camera sketch mount -->
+    <section class="sketch-wrapper" data-scroll>
+      <div id="sketch-consent-camera" class="sketch-embed"></div>
+    </section>
+
+    <section class="page-text">
+      <h2 class="page-section-title" data-scroll>Overview</h2>
+      <p data-scroll>
+        This camera is built around a refusal. Typical cameras assume access the moment someone enters frame.
+        This project flips that default and makes visibility something that has to be granted. The feed starts
+        pixelated, the interface announces consent status, and capture stays disabled until consent is confirmed.
+      </p>
+
+      <h2 class="page-section-title" data-scroll>How it works</h2>
+      <p data-scroll>
+        A face model tracks faces over time so consent can stick while someone moves. A hand model detects an OK gesture
+        held for a few seconds and grants consent to the nearest face. If not everyone is consented, the interface blocks
+        capture and blocks filters. A small menu stays visible for reset and blur controls, plus an intro popup explains
+        how the camera works before interaction starts.
+      </p>
+
+      <h2 class="page-section-title" data-scroll>Reflection</h2>
+      <p data-scroll>
+        The early prototype was just full-frame pixelation, but it didn’t make the permission logic legible.
+        The final version adds a status banner, warning states, and a live countdown so consent feels deliberate instead
+        of random. A future improvement would be stronger identity tracking and a gesture that can revoke consent, not
+        only grant it.
+      </p>
+    </section>
+  </main>
+
+  <!-- libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+
+  <!-- camera script -->
+  <script src="../p5-advanced/assignment-3/camera.js" defer></script>
+
+  <!-- scroll reveal -->
+  <script src="../assets/js/main.js"></script>
+  <script src="../assets/js/sketch-fullscreen.js"></script>
+</body>
+</html>
